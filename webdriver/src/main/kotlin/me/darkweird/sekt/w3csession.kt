@@ -18,10 +18,10 @@ data class Timeouts(
     val implicit: Int? = null
 )
 
-suspend fun <T : WebElement<T>> Session<T>.getTimeouts(): Timeouts =
+suspend fun Session<*>.getTimeouts(): Timeouts =
     get<Timeouts>("$baseUrl/session/$uuid/timeouts").orThrow()
 
-suspend fun <T : WebElement<T>> Session<T>.setTimeouts(value: Timeouts) =
+suspend fun Session<*>.setTimeouts(value: Timeouts) =
     post<Empty?>("$baseUrl/session/$uuid/timeouts", value).orThrow()
 
 //endregion
@@ -31,23 +31,23 @@ suspend fun <T : WebElement<T>> Session<T>.setTimeouts(value: Timeouts) =
 @Serializable
 class PageUrl(val url: String)
 
-suspend fun <T : WebElement<T>> Session<T>.getUrl(): WebDriverResult<String> = get("$baseUrl/session/$uuid/url")
-suspend fun <T : WebElement<T>> Session<T>.setUrl(url: String) =
+suspend fun Session<*>.getUrl(): WebDriverResult<String> = get("$baseUrl/session/$uuid/url")
+suspend fun Session<*>.setUrl(url: String) =
     post<Empty?>("$baseUrl/session/$uuid/url", PageUrl(url)).orThrow()
 
 //endregion
 
 //region back,forward,refresh
 
-suspend fun <T : WebElement<T>> Session<T>.back() = post<Empty?>("$baseUrl/session/$uuid/back", Empty)
+suspend fun Session<*>.back() = post<Empty?>("$baseUrl/session/$uuid/back", Empty)
 suspend fun <T : WebElement<T>> Session<T>.forward() = post<Empty?>("$baseUrl/session/$uuid/forward", Empty)
-suspend fun <T : WebElement<T>> Session<T>.refresh() = post<Empty?>("$baseUrl/session/$uuid/refresh", Empty)
+suspend fun Session<*>.refresh() = post<Empty?>("$baseUrl/session/$uuid/refresh", Empty)
 
 //endregion
 
 //region title
 
-suspend fun <T : WebElement<T>> Session<T>.getTitle() = get<String>("$baseUrl/session/$uuid/title")
+suspend fun Session<*>.getTitle() = get<String>("$baseUrl/session/$uuid/title")
 
 //endRegion
 
@@ -55,20 +55,21 @@ suspend fun <T : WebElement<T>> Session<T>.getTitle() = get<String>("$baseUrl/se
 
 
 @Serializable
-class WindowHandle(val handle: String) // TODO seems there can be another varians
+class WindowHandle(val handle: String) // TODO seems there can be another variants
 
-suspend fun <T : WebElement<T>> Session<T>.getWindowHandle() = get<String>("$baseUrl/session/$uuid/window")
-suspend fun <T : WebElement<T>> Session<T>.switchToWindow(window: String) =
+suspend fun Session<*>.getWindowHandle() = get<String>("$baseUrl/session/$uuid/window")
+suspend fun Session<*>.switchToWindow(window: String) =
     post<Empty?>("$baseUrl/session/$uuid/window", WindowHandle(window))
 
-suspend fun <T : WebElement<T>> Session<T>.closeWindow() = delete<List<String>>("$baseUrl/session/$uuid/window")
-suspend fun <T : WebElement<T>> Session<T>.getWindowHandles() =
+suspend fun Session<*>.closeWindow() = delete<List<String>>("$baseUrl/session/$uuid/window")
+suspend fun Session<*>.getWindowHandles() =
     get<List<String>>("$baseUrl/session/$uuid/window/handles")
 
 //endregion
 
 //region frames
 
+@Serializable
 sealed class FrameLocator {
     @Serializable
     class IdLocator(val id: Int)
@@ -77,12 +78,13 @@ sealed class FrameLocator {
     class WebElementLocator(val id: String)
 }
 
-suspend inline fun <reified T : FrameLocator, E : WebElement<E>> Session<E>.switchToFrame(frame: T) =
+suspend inline fun <reified T : FrameLocator> Session<*>.switchToFrame(frame: T) =
     post<Empty>("$baseUrl/session/$uuid/frame", frame)
 
-suspend fun <T : WebElement<T>> Session<T>.switchToParentFrame() =
+suspend fun Session<*>.switchToParentFrame() =
     post<Empty>("$baseUrl/session/$uuid/frame/parent", Empty)
-//endregions
+
+//endregion
 
 //region window handling
 
@@ -94,17 +96,17 @@ data class Rect<T : Number>(
     val height: T
 )
 
-suspend fun <T : WebElement<T>> Session<T>.getWindowRect() = get<Rect<Int>>("$baseUrl/session/$uuid/window/rect")
-suspend fun <T : WebElement<T>> Session<T>.setWindowRect(rect: Rect<Int>) =
+suspend fun Session<*>.getWindowRect() = get<Rect<Int>>("$baseUrl/session/$uuid/window/rect")
+suspend fun Session<*>.setWindowRect(rect: Rect<Int>) =
     post<Rect<Int>>("$baseUrl/session/$uuid/window/rect", rect)
 
-suspend fun <T : WebElement<T>> Session<T>.windowMaximize() =
+suspend fun Session<*>.windowMaximize() =
     post<Rect<Int>>("$baseUrl/session/$uuid/window/maximize", Empty)
 
-suspend fun <T : WebElement<T>> Session<T>.windowMinimize() =
+suspend fun Session<*>.windowMinimize() =
     post<Rect<Int>>("$baseUrl/session/$uuid/window/minimize", Empty)
 
-suspend fun <T : WebElement<T>> Session<T>.windowFullscreen() =
+suspend fun Session<*>.windowFullscreen() =
     post<Rect<Int>>("$baseUrl/session/$uuid/window/fullscreen", Empty)
 
 
@@ -122,7 +124,7 @@ class W3CSession<T : WebElement<T>> {
 //region element
 
 //TODO make W3CWebElement as generic
-suspend fun <T : WebElement<T>> Session<T>.getActiveElement() =
+suspend fun Session<*>.getActiveElement() =
     createWebElement(get("$baseUrl/session/$uuid/element/active"))
 
 @Serializable
@@ -151,45 +153,45 @@ suspend inline fun <reified T : WebElement<T>> WebElement<T>.findElement(locator
 suspend inline fun <reified T : WebElement<T>> WebElement<T>.findElements(locator: Locator) =
     post<T>("$baseUrl/session/$uuid/element/$elementId/elements", locator)
 
-suspend fun <T : WebElement<T>> WebElement<T>.isSelected() =
+suspend fun WebElement<*>.isSelected() =
     get<Boolean>("$baseUrl/session/$uuid/element/$elementId/selected")
 
-suspend fun <T : WebElement<T>> WebElement<T>.getAttribute(name: String) =
+suspend fun WebElement<*>.getAttribute(name: String) =
     get<String?>("$baseUrl/session/$uuid/element/$elementId/attribute/$name")
 
-suspend fun <T : WebElement<T>> WebElement<T>.getProperty(name: String) =
+suspend fun WebElement<*>.getProperty(name: String) =
     get<String?>("$baseUrl/session/$uuid/element/$elementId/property/$name")
 
-suspend fun <T : WebElement<T>> WebElement<T>.getCssValue(name: String) =
+suspend fun WebElement<*>.getCssValue(name: String) =
     get<String>("$baseUrl/session/$uuid/element/$elementId/css/$name")
 
-suspend fun <T : WebElement<T>> WebElement<T>.getText() = get<String>("$baseUrl/session/$uuid/element/$elementId/text")
-suspend fun <T : WebElement<T>> WebElement<T>.getTagName() =
+suspend fun WebElement<*>.getText() = get<String>("$baseUrl/session/$uuid/element/$elementId/text")
+suspend fun WebElement<*>.getTagName() =
     get<String>("$baseUrl/session/$uuid/element/$elementId/name")
 
-suspend fun <T : WebElement<T>> WebElement<T>.getRect() =
+suspend fun WebElement<*>.getRect() =
     get<Rect<Float>>("$baseUrl/session/$uuid/element/$elementId/rect")
 
-suspend fun <T : WebElement<T>> WebElement<T>.isEnabled() =
+suspend fun WebElement<*>.isEnabled() =
     get<Boolean>("$baseUrl/session/$uuid/element/$elementId/enabled")
 
-suspend fun <T : WebElement<T>> WebElement<T>.click() =
+suspend fun WebElement<*>.click() =
     post<Empty?>("$baseUrl/session/$uuid/element/$elementId/click", Empty)
 
-suspend fun <T : WebElement<T>> WebElement<T>.clear() =
+suspend fun WebElement<*>.clear() =
     post<Empty?>("$baseUrl/session/$uuid/element/$elementId/clear", Empty)
 
 @Serializable
 class Text(val text: String)
 
-suspend fun <T : WebElement<T>> WebElement<T>.sendKeys(text: String) =
+suspend fun WebElement<*>.sendKeys(text: String) =
     post<Empty?>("$baseUrl/session/$uuid/element/$elementId/value", Text(text))
 
 //endregion
 
 //region Get Page Source
 
-suspend fun <T : WebElement<T>> Session<T>.getPageSource() =
+suspend fun Session<*>.getPageSource() =
     get<String>("$baseUrl/session/$uuid/source")
 
 //endregion
@@ -322,8 +324,6 @@ suspend fun Session<*>.takeScreenshot(): WebDriverResult<String> =
 suspend fun WebElement<*>.takeScreenshot(): WebDriverResult<String> =
     get("$baseUrl/session/$uuid/element/$elementId/screenshot")
 
-//GET 	/session/{session id}/screenshot 	Take Screenshot
-//GET 	/session/{session id}/element/{element id}/screenshot 	Take Element Screenshot
 //endregion
 
 
