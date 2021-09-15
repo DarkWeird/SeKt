@@ -20,7 +20,7 @@ class WebDriverNewSessionParameters(
 
 @Serializable
 class WebDriverCapabilities(
-    val allMatch: Capabilities? = null,
+    val alwaysMatch: Capabilities? = null,
     val firstMatch: List<Capabilities>? = null
 )
 

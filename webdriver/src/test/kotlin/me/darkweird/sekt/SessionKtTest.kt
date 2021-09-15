@@ -32,15 +32,16 @@ fun createTestWebDriver(baseUrl: String): TestWebDriver {
 }
 
 fun withTestSession(code: suspend TestSession.() -> Unit) {
-    val driver = createTestWebDriver("http://localhost:4444")
+    val driver = createTestWebDriver("http://localhost:4444/wd/hub")
     runBlocking {
         val session = driver.create(
             WebDriverNewSessionParameters(
                 WebDriverCapabilities(
                     JsonObject(
                         mapOf(
-                            "browser" to JsonPrimitive("firefox"),
-                            "platform" to JsonPrimitive("linux")
+                            "browserName" to JsonPrimitive("firefox"),
+                            "browserVersion" to JsonPrimitive("91.0"),
+                            "platformName" to JsonPrimitive("linux"),
                         )
                     )
                 )
@@ -57,21 +58,21 @@ fun withTestSession(code: suspend TestSession.() -> Unit) {
 class CoreTests {
     @Test
     fun status() {
-        val driver = createTestWebDriver("http://localhost:4444")
+        val driver = createTestWebDriver("http://localhost:4444/wd/hub")
         runBlocking { driver.status() }
 
     }
 
     @Test
     fun createSessionLegacyCaps() {
-        val driver = createTestWebDriver("http://localhost:4444")
+        val driver = createTestWebDriver("http://localhost:4444/wd/hub")
         runBlocking {
             val session = driver.create(
                 LegacyNewSessionParameters(
                     JsonObject(
                         mapOf(
-                            "browser" to JsonPrimitive("firefox"),
-                            "platform" to JsonPrimitive("linux")
+                            "browserName" to JsonPrimitive("firefox"),
+                            "platformName" to JsonPrimitive("linux")
                         )
                     )
                 )
@@ -82,15 +83,14 @@ class CoreTests {
 
     @Test
     fun createSessionWebDriverCaps() {
-        val driver = createTestWebDriver("http://localhost:4444")
+        val driver = createTestWebDriver("http://localhost:4444/wd/hub")
         runBlocking {
             val session = driver.create(
                 WebDriverNewSessionParameters(
                     WebDriverCapabilities(
                         JsonObject(
                             mapOf(
-                                "browser" to JsonPrimitive("firefox"),
-                                "platform" to JsonPrimitive("linux")
+                                "browserName" to JsonPrimitive("firefox"),
                             )
                         )
                     )
