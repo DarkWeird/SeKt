@@ -47,7 +47,7 @@ suspend fun Session<*>.refresh() = post<Empty?>("$baseUrl/session/$uuid/refresh"
 
 //region title
 
-suspend fun Session<*>.getTitle() = get<String>("$baseUrl/session/$uuid/title")
+suspend fun Session<*>.getTitle(): WebDriverResult<String> = get("$baseUrl/session/$uuid/title")
 
 //endRegion
 
@@ -57,13 +57,13 @@ suspend fun Session<*>.getTitle() = get<String>("$baseUrl/session/$uuid/title")
 @Serializable
 class WindowHandle(val handle: String) // TODO seems there can be another variants
 
-suspend fun Session<*>.getWindowHandle() = get<String>("$baseUrl/session/$uuid/window")
-suspend fun Session<*>.switchToWindow(window: String) =
-    post<Empty?>("$baseUrl/session/$uuid/window", WindowHandle(window))
+suspend fun Session<*>.getWindowHandle(): WebDriverResult<String> = get("$baseUrl/session/$uuid/window")
+suspend fun Session<*>.switchToWindow(window: String): WebDriverResult<Empty?> =
+    post("$baseUrl/session/$uuid/window", WindowHandle(window))
 
-suspend fun Session<*>.closeWindow() = delete<List<String>>("$baseUrl/session/$uuid/window")
-suspend fun Session<*>.getWindowHandles() =
-    get<List<String>>("$baseUrl/session/$uuid/window/handles")
+suspend fun Session<*>.closeWindow(): WebDriverResult<List<String>> = delete("$baseUrl/session/$uuid/window")
+suspend fun Session<*>.getWindowHandles(): WebDriverResult<List<String>> =
+    get("$baseUrl/session/$uuid/window/handles")
 
 //endregion
 
@@ -78,11 +78,11 @@ sealed class FrameLocator {
     class WebElementLocator(val id: String)
 }
 
-suspend inline fun <reified T : FrameLocator> Session<*>.switchToFrame(frame: T) =
-    post<Empty>("$baseUrl/session/$uuid/frame", frame)
+suspend inline fun <reified T : FrameLocator> Session<*>.switchToFrame(frame: T): WebDriverResult<Empty> =
+    post("$baseUrl/session/$uuid/frame", frame)
 
-suspend fun Session<*>.switchToParentFrame() =
-    post<Empty>("$baseUrl/session/$uuid/frame/parent", Empty)
+suspend fun Session<*>.switchToParentFrame(): WebDriverResult<Empty> =
+    post("$baseUrl/session/$uuid/frame/parent", Empty)
 
 //endregion
 
@@ -96,30 +96,21 @@ data class Rect<T : Number>(
     val height: T
 )
 
-suspend fun Session<*>.getWindowRect() = get<Rect<Int>>("$baseUrl/session/$uuid/window/rect")
-suspend fun Session<*>.setWindowRect(rect: Rect<Int>) =
-    post<Rect<Int>>("$baseUrl/session/$uuid/window/rect", rect)
+suspend fun Session<*>.getWindowRect(): WebDriverResult<Rect<Int>> = get("$baseUrl/session/$uuid/window/rect")
 
-suspend fun Session<*>.windowMaximize() =
-    post<Rect<Int>>("$baseUrl/session/$uuid/window/maximize", Empty)
+suspend fun Session<*>.setWindowRect(rect: Rect<Int>): WebDriverResult<Rect<Int>> =
+    post("$baseUrl/session/$uuid/window/rect", rect)
 
-suspend fun Session<*>.windowMinimize() =
-    post<Rect<Int>>("$baseUrl/session/$uuid/window/minimize", Empty)
+suspend fun Session<*>.windowMaximize(): WebDriverResult<Rect<Int>> =
+    post("$baseUrl/session/$uuid/window/maximize", Empty)
 
-suspend fun Session<*>.windowFullscreen() =
-    post<Rect<Int>>("$baseUrl/session/$uuid/window/fullscreen", Empty)
+suspend fun Session<*>.windowMinimize(): WebDriverResult<Rect<Int>> =
+    post("$baseUrl/session/$uuid/window/minimize", Empty)
 
+suspend fun Session<*>.windowFullscreen(): WebDriverResult<Rect<Int>> =
+    post("$baseUrl/session/$uuid/window/fullscreen", Empty)
 
-class W3CSession<T : WebElement<T>> {
-    suspend fun Session<T>.windowFullscreen() =
-        post<Rect<Int>>("$baseUrl/session/$uuid/window/fullscreen", Empty)
-
-    suspend fun Session<T>.findElement(locator: Locator) =
-        createWebElement(post("$baseUrl/session/$uuid/element", locator))
-
-}
 //endregion
-
 
 //region element
 
@@ -142,57 +133,57 @@ fun xpath(value: String) = Locator("xpath", value)
 suspend fun <T : WebElement<T>> Session<T>.findElement(locator: Locator) =
     createWebElement(post("$baseUrl/session/$uuid/element", locator))
 
-suspend fun <T : WebElement<T>> Session<T>.findElements(locator: Locator) =
+suspend fun <T : WebElement<T>> Session<T>.findElements(locator: Locator): List<T> =
     post<List<WebElementResponse>>("$baseUrl/session/$uuid/elements", locator).orThrow()
         .map { createWebElement(WebDriverResult.Success(it)) }
 
 
-suspend inline fun <reified T : WebElement<T>> WebElement<T>.findElement(locator: Locator) =
-    post<T>("$baseUrl/session/$uuid/element/$elementId/element", locator)
+suspend inline fun <reified T : WebElement<T>> WebElement<T>.findElement(locator: Locator): WebDriverResult<T> =
+    post("$baseUrl/session/$uuid/element/$elementId/element", locator)
 
-suspend inline fun <reified T : WebElement<T>> WebElement<T>.findElements(locator: Locator) =
-    post<T>("$baseUrl/session/$uuid/element/$elementId/elements", locator)
+suspend inline fun <reified T : WebElement<T>> WebElement<T>.findElements(locator: Locator): WebDriverResult<T> =
+    post("$baseUrl/session/$uuid/element/$elementId/elements", locator)
 
-suspend fun WebElement<*>.isSelected() =
-    get<Boolean>("$baseUrl/session/$uuid/element/$elementId/selected")
+suspend fun WebElement<*>.isSelected(): WebDriverResult<Boolean> =
+    get("$baseUrl/session/$uuid/element/$elementId/selected")
 
-suspend fun WebElement<*>.getAttribute(name: String) =
-    get<String?>("$baseUrl/session/$uuid/element/$elementId/attribute/$name")
+suspend fun WebElement<*>.getAttribute(name: String): WebDriverResult<String?> =
+    get("$baseUrl/session/$uuid/element/$elementId/attribute/$name")
 
-suspend fun WebElement<*>.getProperty(name: String) =
-    get<String?>("$baseUrl/session/$uuid/element/$elementId/property/$name")
+suspend fun WebElement<*>.getProperty(name: String): WebDriverResult<String?> =
+    get("$baseUrl/session/$uuid/element/$elementId/property/$name")
 
-suspend fun WebElement<*>.getCssValue(name: String) =
-    get<String>("$baseUrl/session/$uuid/element/$elementId/css/$name")
+suspend fun WebElement<*>.getCssValue(name: String): WebDriverResult<String> =
+    get("$baseUrl/session/$uuid/element/$elementId/css/$name")
 
-suspend fun WebElement<*>.getText() = get<String>("$baseUrl/session/$uuid/element/$elementId/text")
-suspend fun WebElement<*>.getTagName() =
-    get<String>("$baseUrl/session/$uuid/element/$elementId/name")
+suspend fun WebElement<*>.getText(): WebDriverResult<String> = get("$baseUrl/session/$uuid/element/$elementId/text")
+suspend fun WebElement<*>.getTagName(): WebDriverResult<String> =
+    get("$baseUrl/session/$uuid/element/$elementId/name")
 
-suspend fun WebElement<*>.getRect() =
-    get<Rect<Float>>("$baseUrl/session/$uuid/element/$elementId/rect")
+suspend fun WebElement<*>.getRect(): WebDriverResult<Rect<Float>> =
+    get("$baseUrl/session/$uuid/element/$elementId/rect")
 
-suspend fun WebElement<*>.isEnabled() =
-    get<Boolean>("$baseUrl/session/$uuid/element/$elementId/enabled")
+suspend fun WebElement<*>.isEnabled(): WebDriverResult<Boolean> =
+    get("$baseUrl/session/$uuid/element/$elementId/enabled")
 
-suspend fun WebElement<*>.click() =
-    post<Empty?>("$baseUrl/session/$uuid/element/$elementId/click", Empty)
+suspend fun WebElement<*>.click(): WebDriverResult<Empty?> =
+    post("$baseUrl/session/$uuid/element/$elementId/click", Empty)
 
-suspend fun WebElement<*>.clear() =
-    post<Empty?>("$baseUrl/session/$uuid/element/$elementId/clear", Empty)
+suspend fun WebElement<*>.clear(): WebDriverResult<Empty?> =
+    post("$baseUrl/session/$uuid/element/$elementId/clear", Empty)
 
 @Serializable
 class Text(val text: String)
 
-suspend fun WebElement<*>.sendKeys(text: String) =
-    post<Empty?>("$baseUrl/session/$uuid/element/$elementId/value", Text(text))
+suspend fun WebElement<*>.sendKeys(text: String): WebDriverResult<Empty?> =
+    post("$baseUrl/session/$uuid/element/$elementId/value", Text(text))
 
 //endregion
 
 //region Get Page Source
 
-suspend fun Session<*>.getPageSource() =
-    get<String>("$baseUrl/session/$uuid/source")
+suspend fun Session<*>.getPageSource(): WebDriverResult<String> =
+    get("$baseUrl/session/$uuid/source")
 
 //endregion
 
@@ -204,11 +195,11 @@ data class ScriptData(
     val args: List<JsonElement>
 )
 
-suspend inline fun <reified R> Session<*>.execute(data: ScriptData) =
-    post<R>("$baseUrl/session/$uuid/execute/sync", data)
+suspend inline fun <reified R> Session<*>.execute(data: ScriptData): WebDriverResult<R> =
+    post("$baseUrl/session/$uuid/execute/sync", data)
 
-suspend inline fun <reified R> Session<*>.executeAsync(data: ScriptData) =
-    post<R>("$baseUrl/session/$uuid/execute/async", data)
+suspend inline fun <reified R> Session<*>.executeAsync(data: ScriptData): WebDriverResult<R> =
+    post("$baseUrl/session/$uuid/execute/async", data)
 
 //endregion
 
@@ -233,21 +224,21 @@ data class Cookie(
 @Serializable
 data class CookieData(val cookie: Cookie)
 
-suspend fun Session<*>.cookies() =
-    get<List<Cookie>>("$baseUrl/session/$uuid/cookie")
+suspend fun Session<*>.cookies(): WebDriverResult<List<Cookie>> =
+    get("$baseUrl/session/$uuid/cookie")
 
-suspend fun Session<*>.getCookie(name: String) =
-    get<String>("$baseUrl/session/$uuid/cookie/$name")
+suspend fun Session<*>.getCookie(name: String): WebDriverResult<String> =
+    get("$baseUrl/session/$uuid/cookie/$name")
 
-suspend fun Session<*>.setCookie(cookie: Cookie) =
-    post<Empty?>("$baseUrl/session/$uuid/cookie", CookieData(cookie))
+suspend fun Session<*>.setCookie(cookie: Cookie): WebDriverResult<Empty?> =
+    post("$baseUrl/session/$uuid/cookie", CookieData(cookie))
 
 
-suspend fun Session<*>.deleteAll() =
-    delete<Empty?>("$baseUrl/session/$uuid/cookie")
+suspend fun Session<*>.deleteAll(): WebDriverResult<Empty?> =
+    delete("$baseUrl/session/$uuid/cookie")
 
-suspend fun Session<*>.deleteCookie(name: String) =
-    delete<Empty?>("$baseUrl/session/$uuid/cookie/$name")
+suspend fun Session<*>.deleteCookie(name: String): WebDriverResult<Empty?> =
+    delete("$baseUrl/session/$uuid/cookie/$name")
 
 //endregion
 
