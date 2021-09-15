@@ -16,7 +16,7 @@ jobs:
       - name: Run tests
         uses: gradle/gradle-build-action@v1.5.1
         with:
-          argumets: test
+          arguments: test
           
       
       
