@@ -20,7 +20,7 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:$ktor_version")
     implementation("io.ktor:ktor-client-serialization:$ktor_version")
 
-    testImplementation(kotlin("test"))
+    testImplementation("io.kotest:kotest-runner-junit5:4.6.2")
 }
 
 
