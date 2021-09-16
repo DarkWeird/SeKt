@@ -2,7 +2,9 @@ package me.darkweird.sekt
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.encodeToJsonElement
 
 
 const val FRAME_KEY = "frame-075b-4da1-b6ba-e579c2d3230a"
@@ -99,7 +101,10 @@ data class Rect<T : Number>(
 suspend fun Session<*>.getWindowRect(): WebDriverResult<Rect<Int>> = get("$baseUrl/session/$uuid/window/rect")
 
 suspend fun Session<*>.setWindowRect(rect: Rect<Int>): WebDriverResult<Rect<Int>> =
-    post("$baseUrl/session/$uuid/window/rect", rect)
+    post(
+        "$baseUrl/session/$uuid/window/rect",
+        Json.encodeToJsonElement(rect)
+    ) // FIXME this is workaround - ktor cannot determinate Rect's serializer
 
 suspend fun Session<*>.windowMaximize(): WebDriverResult<Rect<Int>> =
     post("$baseUrl/session/$uuid/window/maximize", Empty)
