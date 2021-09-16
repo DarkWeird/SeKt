@@ -41,8 +41,6 @@ suspend fun withTestSession(code: suspend TestSession.() -> Unit) {
                 JsonObject(
                     mapOf(
                         "browserName" to JsonPrimitive("firefox"),
-                        "browserVersion" to JsonPrimitive("91.0"),
-                        "platformName" to JsonPrimitive("linux"),
                     )
                     )
                 )
@@ -69,8 +67,7 @@ class CoreTests : FunSpec() {
                 LegacyNewSessionParameters(
                     JsonObject(
                         mapOf(
-                            "browserName" to JsonPrimitive("firefox"),
-                            "platformName" to JsonPrimitive("linux")
+                            "browserName" to JsonPrimitive("firefox")
                         )
                     )
                 )
