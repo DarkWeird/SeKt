@@ -1,3 +1,3 @@
 rootProject.name = "SeKt"
 
-include("common", "webdriver")
+include("common", "w3c")

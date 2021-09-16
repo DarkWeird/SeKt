@@ -57,7 +57,6 @@ suspend fun withTestSession(code: suspend TestSession.() -> Unit) {
 
 class CoreTests : FunSpec() {
     init {
-
         test("status") {
             val driver = createTestWebDriver("http://localhost:4444/wd/hub")
             driver.status()

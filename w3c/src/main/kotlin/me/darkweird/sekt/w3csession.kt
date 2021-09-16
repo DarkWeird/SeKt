@@ -55,7 +55,6 @@ suspend fun Session<*>.getTitle(): WebDriverResult<String> = get("$baseUrl/sessi
 
 //region window handles
 
-
 @Serializable
 class WindowHandle(val handle: String) // TODO seems there can be another variants
 
