@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Start Selenoid Server
         uses: Xotabu4/selenoid-github-action@v2
+        with:
+          args: --browsers 'firefox:>90.0
       - uses: actions/checkout@v2
       - name: Run tests
         uses: gradle/gradle-build-action@v1.5.1
