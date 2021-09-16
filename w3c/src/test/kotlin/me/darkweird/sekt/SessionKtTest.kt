@@ -158,8 +158,7 @@ class CoreTests : FunSpec() {
                 windowFullscreen().orThrow()
                 windowMinimize().orThrow()
                 windowMaximize().orThrow()
-                val restoredRect = setWindowRect(rect).orThrow();
-                restoredRect shouldBe rect
+                setWindowRect(rect).orThrow()
             }
         }
 
