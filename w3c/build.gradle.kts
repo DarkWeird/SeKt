@@ -26,4 +26,11 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+
+    testLogging {
+        outputs.upToDateWhen { false }
+        showStandardStreams = true
+        showStackTraces = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
 }
