@@ -10,12 +10,17 @@ public fun <T : HttpClientEngineConfig> webdriver(
     baseUrl: String,
     ktorEngine: HttpClientEngineFactory<T>,
     httpConfig: HttpClientConfig<T>.() -> Unit = {},
-    jsonConfig: JsonFeature.Config.() -> Unit = {}
+    jsonConfig: JsonBuilder.() -> Unit = {}
 ): WebDriver<HttpClient> =
     WebDriver(baseUrl) {
         WebDriverConfig {
             HttpClient(ktorEngine) {
-                install(JsonFeature, jsonConfig)
+                install(JsonFeature) {
+                    serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
+                        encodeDefaults = false
+                        jsonConfig()
+                    })
+                }
                 httpConfig()
             }
         }
@@ -32,13 +37,12 @@ public fun webdriver(
             HttpClient {
                 install(JsonFeature) {
                     serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
-                        jsonConfig()
                         encodeDefaults = false
+                        jsonConfig()
                     })
                 }
                 httpConfig()
             }
-
         }
     }
 
