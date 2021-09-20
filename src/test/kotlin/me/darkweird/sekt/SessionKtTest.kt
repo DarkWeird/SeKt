@@ -5,43 +5,30 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldMatch
 import io.kotest.matchers.string.shouldStartWith
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.features.json.*
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import me.darkweird.sekt.w3c.*
-
-private fun createTestWebDriver(s: String) =
-    WebDriver(s) {
-        WebDriverConfig {
-            HttpClient(CIO) {
-                install(JsonFeature)
-            }
-        }
-    }
+import me.darkweird.sekt.w3c.W3CCapabilities.browserName
+import me.darkweird.sekt.w3c.W3CCapabilities.browserVersion
+import me.darkweird.sekt.w3c.W3CCapabilities.platformName
 
 private suspend fun withTestSession(block: suspend KtorW3CSession.() -> Unit) {
-    createTestWebDriver("http://localhost:4444/wd/hub")
+    webdriver("http://localhost:4444/wd/hub")
         .session(
-            W3CKtor, WebDriverNewSessionParameters(
-                WebDriverCapabilities(
-                    JsonObject(
-                        mapOf(
-                            "browserName" to JsonPrimitive("firefox"),
-                        )
-                    )
-                )
-            ),
+            W3CKtor,
+            capabilities
+            {
+                browserName = "firefox"
+                platformName = "linux"
+                browserVersion = "92.0"
+            },
             block
         )
 }
 
 class CoreTests : FunSpec() {
     init {
-
         test("status") {
-            val driver = createTestWebDriver("http://localhost:4444/wd/hub")
+            val driver = webdriver("http://localhost:4444/wd/hub")
             driver.status().ready shouldBe true
         }
 
@@ -92,18 +79,15 @@ class CoreTests : FunSpec() {
 
         test("window handles") {
             //Closes single window - closes session
-            val session = createTestWebDriver("http://localhost:4444/wd/hub")
+            val session = webdriver("http://localhost:4444/wd/hub")
                 .session(
-                    W3CKtor, WebDriverNewSessionParameters(
-                        WebDriverCapabilities(
-                            JsonObject(
-                                mapOf(
-                                    "browserName" to JsonPrimitive("firefox"),
-                                )
-                            )
-                        )
-                    )
-                )
+                    W3CKtor,
+                    capabilities
+                    {
+                        browserName = "firefox"
+                        platformName = "linux"
+                        browserVersion = "92.0"
+                    })
             session.run {
                 setUrl(PageUrl("https://www.google.com/"))
                 val handle = getWindowHandle()

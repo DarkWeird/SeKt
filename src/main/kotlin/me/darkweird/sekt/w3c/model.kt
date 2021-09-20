@@ -3,13 +3,55 @@ package me.darkweird.sekt.w3c
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
+import me.darkweird.sekt.Caps
+import me.darkweird.sekt.capability
 
 const val FRAME_KEY = "frame-075b-4da1-b6ba-e579c2d3230a"
 const val WINDOW_KEY = "window-fcc6-11e5-b4f8-330a88ab9d7f"
 const val ELEMENT_KEY = "element-6066-11e4-a52e-4f735466cecf"
 
+
+object W3CCapabilities {
+    var Caps.browserName: String by capability()
+    var Caps.browserVersion: String by capability()
+    var Caps.platformName: String by capability()
+    var Caps.acceptInsecureCerts: Boolean by capability()
+    var Caps.pageLoadStrategy: String by capability()
+    var Caps.proxy: Proxy by capability()
+    var Caps.setWindowRect: Boolean by capability()
+    var Caps.timeouts: Timeouts by capability()
+    var Caps.unhandledPromptBehavior: String by capability()
+}
+
+
 @Serializable
-class Status(
+sealed class Proxy(val proxyType: String) {
+    @Serializable
+    data class PAC(val proxyAutoconfigUrl: String) : Proxy("pac")
+
+    @Serializable
+    object Direct : Proxy("direct")
+
+    @Serializable
+    object Autodetect : Proxy("autodetect")
+
+    @Serializable
+    object System : Proxy("system")
+
+    @Serializable
+    data class Manual(
+        val ftpProxy: String,
+        val httpProxy: String,
+        val noProxy: List<String>,
+        val sslProxy: String,
+        val socksProxy: String,
+        val socksVersion: Int
+    ) : Proxy("manual")
+}
+
+
+@Serializable
+data class Status(
     val ready: Boolean,
     val message: String
 )
