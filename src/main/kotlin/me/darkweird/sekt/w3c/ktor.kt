@@ -12,7 +12,7 @@ object W3CKtor : SessionFactory<WebDriver<HttpClient>, KtorW3CSession> {
         capabilities: WebDriverNewSessionParameters
     ): KtorW3CSession {
         val params = driver.post<WebDriverNewSessionParameters, CreateSessionResponse>("/session", capabilities)
-        return KtorW3CSession(Session<HttpClient>(params.sessionId, driver))
+        return KtorW3CSession(Session(params.sessionId, driver))
     }
 }
 

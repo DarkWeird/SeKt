@@ -1,6 +1,7 @@
 package me.darkweird.sekt
 
 import io.kotest.assertions.asClue
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.Tuple3
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -9,6 +10,7 @@ import io.ktor.client.request.*
 import io.ktor.content.*
 import io.ktor.http.*
 import kotlinx.serialization.json.*
+import me.darkweird.sekt.common.WebDriverException
 import me.darkweird.sekt.w3c.*
 import me.darkweird.sekt.w3c.Cookie
 import me.darkweird.sekt.w3c.W3CCapabilities.browserName
@@ -759,6 +761,34 @@ class W3CTests : FunSpec({
     }
 })
 
+class W3CErrors : FunSpec({
+    W3CError.values()
+        .forEach { error ->
+            test(error.error) {
+                val wd = webDriver(
+                    {
+                        val json = buildJsonObject {
+                            put("value", buildJsonObject {
+                                put("error", error.error)
+                                put("message", "something happens")
+                                put("stacktrace", "")
+                            })
+                        }
+                        respond(json.toString(),
+                            HttpStatusCode.fromValue(error.httpCode),
+                            Headers.build {
+                                this["Content-Type"] = "application/json"
+                            })
+                    }
+                )
+                shouldThrow<WebDriverException> {
+                    wd.status()
+                } shouldBe WebDriverException("something happens", error, stacktrace = "")
+            }
+        }
+})
+
+
 private fun elementurl(sessionId: String, elementId: String, path: String) =
     "/session/$sessionId/element/$elementId/$path"
 
@@ -792,9 +822,13 @@ private fun HttpRequestData.asJson() =
     Json.parseToJsonElement((body as TextContent).text)
 
 
-private fun webDriver(vararg handlers: suspend MockRequestHandleScope.(request: HttpRequestData) -> HttpResponseData) =
+private fun webDriver(vararg handlers: MockRequestHandler) =
     webdriver("https://anyUrl",
-        MockEngine, {
+        listOf(
+            w3cConverter()
+        ),
+        MockEngine,
+        {
             engine {
                 requestHandlers += handlers
             }
@@ -803,27 +837,13 @@ private fun webDriver(vararg handlers: suspend MockRequestHandleScope.(request: 
 private fun response(
     method: HttpMethod,
     path: String,
-    response: JsonElement
-): MockRequestHandler =
-    { request ->
-        request.method shouldBe method
-        request.url.encodedPath shouldBe path
-
-        val resp = buildJsonObject {
-            put(
-                "value",
-                response
-            )
-        }
-        respond(resp.toString(), headers = Headers.build {
-            this["Content-Type"] = "application/json"
-        })
-    }
+    response: JsonElement,
+): MockRequestHandler = response(method, path) { response }
 
 private fun response(
     method: HttpMethod,
     path: String,
-    response: (HttpRequestData) -> JsonElement
+    response: (HttpRequestData) -> JsonElement,
 ): MockRequestHandler =
     { request ->
         request.method shouldBe method
