@@ -12,13 +12,15 @@ object W3CKtor : SessionFactory<WebDriver<HttpClient>, KtorW3CSession> {
         capabilities: WebDriverNewSessionParameters
     ): KtorW3CSession {
         val params = driver.post<WebDriverNewSessionParameters, CreateSessionResponse>("/session", capabilities)
-        return KtorW3CSession(Session<HttpClient>(params.sessionId, driver))
+        return KtorW3CSession(Session(params.sessionId, driver))
     }
 }
 
 suspend fun WebDriver<HttpClient>.status(): Status = get("/status")
 
 class KtorW3CSession(private val session: Session<HttpClient>) : W3CSession<HttpClient> {
+
+    override val sessionId: String = session.sessionId
 
     override suspend fun getTimeouts(): Timeouts = session.get("/timeouts")
 
@@ -49,7 +51,7 @@ class KtorW3CSession(private val session: Session<HttpClient>) : W3CSession<Http
 
     override suspend fun getWindowHandles(): List<String> = session.get("/window/handles")
 
-    override suspend fun switchToFrame(frame: Any) = session.post<Any, Unit>("/frame", frame)
+    override suspend fun switchToFrame(frame: SwitchToFrame) = session.post<SwitchToFrame, Unit>("/frame", frame)
 
     override suspend fun switchToParentFrame() = session.post<Empty, Unit>("/frame/parent", Empty)
 
@@ -67,7 +69,7 @@ class KtorW3CSession(private val session: Session<HttpClient>) : W3CSession<Http
     override suspend fun getActiveElement(): W3CElement<HttpClient> =
         KtorW3CWebElement(
             WebElement(
-                session.get<WebElementResponse>("/element/active").elementId,
+                session.get<WebElementObject>("/element/active").elementId,
                 session
             )
         )
@@ -75,13 +77,13 @@ class KtorW3CSession(private val session: Session<HttpClient>) : W3CSession<Http
     override suspend fun findElement(locator: Locator): W3CElement<HttpClient> =
         KtorW3CWebElement(
             WebElement(
-                session.post<Locator, WebElementResponse>("/element", locator).elementId,
+                session.post<Locator, WebElementObject>("/element", locator).elementId,
                 session
             )
         )
 
     override suspend fun findElements(locator: Locator): List<W3CElement<HttpClient>> =
-        session.post<Locator, List<WebElementResponse>>("/elements", locator).map {
+        session.post<Locator, List<WebElementObject>>("/elements", locator).map {
             KtorW3CWebElement(
                 WebElement(
                     it.elementId,
@@ -126,16 +128,18 @@ class KtorW3CSession(private val session: Session<HttpClient>) : W3CSession<Http
 }
 
 class KtorW3CWebElement(private val element: WebElement<HttpClient>) : W3CElement<HttpClient> {
+    override val elementId: String = element.elementId
+
     override suspend fun findElement(locator: Locator): W3CElement<HttpClient> =
         KtorW3CWebElement(
             WebElement(
-                element.post<Locator, WebElementResponse>("/element", locator).elementId,
+                element.post<Locator, WebElementObject>("/element", locator).elementId,
                 element.session
             )
         )
 
     override suspend fun findElements(locator: Locator): List<W3CElement<HttpClient>> =
-        element.post<Locator, List<WebElementResponse>>("/element", locator).map {
+        element.post<Locator, List<WebElementObject>>("/element", locator).map {
             KtorW3CWebElement(
                 WebElement(
                     it.elementId,

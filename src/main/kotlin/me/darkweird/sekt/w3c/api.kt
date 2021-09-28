@@ -5,6 +5,8 @@ import me.darkweird.sekt.SuspendableClosable
 
 interface W3CSession<T> : SuspendableClosable {
 
+    val sessionId: String
+
     suspend fun getTimeouts(): Timeouts
 
     suspend fun setTimeouts(value: Timeouts)
@@ -28,7 +30,7 @@ interface W3CSession<T> : SuspendableClosable {
     suspend fun closeWindow(): List<String>
     suspend fun getWindowHandles(): List<String>
 
-    suspend fun switchToFrame(frame: Any)
+    suspend fun switchToFrame(frame: SwitchToFrame)
 
     suspend fun switchToParentFrame()
 
@@ -81,6 +83,8 @@ interface W3CSession<T> : SuspendableClosable {
 }
 
 interface W3CElement<T> {
+
+    val elementId: String
 
     suspend fun findElement(locator: Locator): W3CElement<T>
 

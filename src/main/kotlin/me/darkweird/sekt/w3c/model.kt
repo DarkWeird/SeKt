@@ -1,9 +1,17 @@
 package me.darkweird.sekt.w3c
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.mapSerialDescriptor
+import kotlinx.serialization.descriptors.serialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.encodeStructure
 import kotlinx.serialization.json.JsonElement
 import me.darkweird.sekt.Caps
+import me.darkweird.sekt.Empty
 import me.darkweird.sekt.capability
 
 const val FRAME_KEY = "frame-075b-4da1-b6ba-e579c2d3230a"
@@ -49,6 +57,43 @@ sealed class Proxy(val proxyType: String) {
     ) : Proxy("manual")
 }
 
+@Serializable
+sealed class SwitchToFrame {
+
+    @Serializable(NullIdSerializer::class)
+    class Null : SwitchToFrame() // should be class, not object, Serializable don't works otherwise
+
+
+    @Serializable
+    data class Number(val id: Int) : SwitchToFrame()
+
+    @Serializable
+    class WebElement : SwitchToFrame {
+        private val id: WebElementObject
+
+        private constructor(id: WebElementObject) {
+            this.id = id
+        }
+
+        constructor(element: W3CElement<*>) {
+            this.id = WebElementObject(element.elementId)
+        }
+    }
+}
+
+object NullIdSerializer : KSerializer<SwitchToFrame.Null> {
+    override val descriptor: SerialDescriptor = mapSerialDescriptor<String, Empty?>()
+    override fun deserialize(decoder: Decoder): SwitchToFrame.Null {
+        throw UnsupportedOperationException("SwitchToFrame.Null not deserializable")
+    }
+
+    override fun serialize(encoder: Encoder, value: SwitchToFrame.Null) {
+        encoder.encodeStructure(descriptor) {
+            encodeStringElement(descriptor, 0, "id")
+            encodeNullableSerializableElement(descriptor, 1, Empty.serializer(), null)
+        }
+    }
+}
 
 @Serializable
 data class Status(
@@ -57,7 +102,7 @@ data class Status(
 )
 
 @Serializable
-data class WebElementResponse(
+data class WebElementObject(
     @SerialName(ELEMENT_KEY)
     val elementId: String
 )
@@ -84,13 +129,61 @@ sealed class Action {
 
     @Serializable
     @SerialName("pointer")
-    data class PointAction(val id: String) : Action()
+    data class PointerAction(val id: String, val actions: List<PointerActionItem>) : Action()
 
 
     @Serializable
     @SerialName("none")
     data class NoneAction(val id: String, val actions: List<GeneralAction>) : Action()
 }
+
+@Serializable
+sealed class PointerActionItem {
+    @Serializable
+    @SerialName("pointerUp")
+    data class Up(val button: Int) : PointerActionItem()
+
+    @Serializable
+    @SerialName("pointerDown")
+    data class Down(val button: Int) : PointerActionItem()
+
+    @Serializable
+    @SerialName("pointerMove")
+    data class Move(
+        val duration: Int,
+        val origin: Origin,
+        val x: Int,
+        val y: Int
+    ) : PointerActionItem()
+
+    @Serializable
+    @SerialName("pointerCancel")
+    class Cancel : PointerActionItem()
+}
+
+@Serializable(OriginSerializer::class)
+sealed class Origin {
+    object ViewPort : Origin()
+    object Pointer : Origin()
+    class WebElement(val element: WebElementObject) : Origin()
+}
+
+object OriginSerializer : KSerializer<Origin> {
+    override fun deserialize(decoder: Decoder): Origin {
+        throw UnsupportedOperationException("Origin cannot be deserialized")
+    }
+
+    override val descriptor: SerialDescriptor = serialDescriptor<Origin>()
+
+    override fun serialize(encoder: Encoder, value: Origin) {
+        when (value) {
+            Origin.Pointer -> encoder.encodeString("pointer")
+            Origin.ViewPort -> encoder.encodeString("viewport")
+            is Origin.WebElement -> encoder.encodeSerializableValue(WebElementObject.serializer(), value.element)
+        }
+    }
+}
+
 
 @Serializable
 sealed class KeyActionItem {
