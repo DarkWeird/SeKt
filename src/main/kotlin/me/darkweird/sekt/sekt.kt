@@ -5,6 +5,7 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
+import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import me.darkweird.sekt.common.ErrorConverter
 import me.darkweird.sekt.common.defaultConverter
@@ -66,10 +67,12 @@ private fun <T : HttpClientEngineConfig> config(
     expectSuccess = false
     HttpResponseValidator {
         this.validateResponse {
-            val body = it.receive<JsonElement>()
-            val status = it.status.value
-            throw converters
-                .firstNotNullOf { it(status, body) }
+            if (!it.status.isSuccess()) {
+                val body = it.receive<JsonElement>()
+                val status = it.status.value
+                throw converters
+                    .firstNotNullOf { it(status, body) }
+            }
         }
     }
     httpConfig()
