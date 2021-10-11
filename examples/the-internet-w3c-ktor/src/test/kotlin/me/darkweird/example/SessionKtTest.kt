@@ -6,6 +6,7 @@ import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.ktor.client.engine.cio.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import me.darkweird.sekt.capabilities
@@ -23,7 +24,11 @@ const val webUrl: String = "http://the-internet.herokuapp.com"
 const val wdUrl: String = "http://localhost:4444/wd/hub"
 
 private suspend fun withTestSession(block: suspend KtorW3CSession.() -> Unit) {
-    webdriver(wdUrl, errorConverters = listOf(w3cConverter()))
+    webdriver(wdUrl, errorConverters = listOf(w3cConverter()), CIO, httpConfig = {
+        engine {
+            requestTimeout = 60_000
+        }
+    })
         .session(
             W3CKtor,
             capabilities
