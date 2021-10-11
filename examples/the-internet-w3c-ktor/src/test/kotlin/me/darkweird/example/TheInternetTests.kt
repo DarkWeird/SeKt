@@ -46,7 +46,6 @@ private suspend fun withTestSession(block: suspend KtorW3CSession.() -> Unit) {
 class TheInternetTests : FunSpec() {
     init {
         concurrency = 1
-        timeout = 10_000_000
 
         test("Add/remove elements") {
             withTestSession {
