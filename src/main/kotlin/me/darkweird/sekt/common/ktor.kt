@@ -4,6 +4,8 @@ import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
+import me.darkweird.sekt.common.WebDriverException
+import me.darkweird.sekt.w3c.W3CError
 
 
 @Serializable
@@ -42,21 +44,49 @@ suspend inline fun <reified R> WebDriver<HttpClient>.delete(path: String): R =
 suspend inline fun <reified R> Session<HttpClient>.get(path: String): R =
     webDriver.get("/session/$sessionId$path")
 
-suspend inline fun <reified R> WebElement<HttpClient>.get(path: String): R =
-    session.get("/element/$elementId$path")
-
-
 suspend inline fun <reified R> Session<HttpClient>.delete(path: String): R =
     webDriver.delete("/session/$sessionId$path")
-
-suspend inline fun <reified R> WebElement<HttpClient>.delete(path: String): R =
-    session.delete("/element/$elementId$path")
 
 suspend inline fun <T : Any, reified R> Session<HttpClient>.post(path: String, body: T): R =
     webDriver.post("/session/$sessionId$path", body)
 
+suspend inline fun <reified R> WebElement<HttpClient>.get(path: String): R =
+    try {
+        session.get("/element/$elementId$path")
+    } catch (e: WebDriverException) {
+        if (e.kind == W3CError.STALE_ELEMENT_REFERENCE) {
+            refreshFn()
+            session.get("/element/$elementId$path")
+        } else {
+            throw e
+        }
+    }
+
+
+suspend inline fun <reified R> WebElement<HttpClient>.delete(path: String): R =
+    try {
+        session.delete("/element/$elementId$path")
+    } catch (e: WebDriverException) {
+        if (e.kind == W3CError.STALE_ELEMENT_REFERENCE) {
+            refreshFn()
+            session.delete("/element/$elementId$path")
+        } else {
+            throw e
+        }
+    }
+
+
 suspend inline fun <T : Any, reified R> WebElement<HttpClient>.post(path: String, body: T): R =
-    session.post("/element/$elementId$path", body)
+    try {
+        session.post("/element/$elementId$path", body)
+    } catch (e: WebDriverException) {
+        if (e.kind == W3CError.STALE_ELEMENT_REFERENCE) {
+            refreshFn()
+            session.post("/element/$elementId$path", body)
+        } else {
+            throw e
+        }
+    }
 
 
 
