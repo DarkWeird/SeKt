@@ -72,6 +72,7 @@ class KtorW3CSession(private val session: Session<HttpClient>) : W3CSession<Http
                 session.get<WebElementObject>("/element/active").elementId,
                 session
             )
+            { elementId = session.get<WebElementObject>("/element/active").elementId }
         )
 
     override suspend fun findElement(locator: Locator): W3CElement<HttpClient> =
@@ -79,7 +80,7 @@ class KtorW3CSession(private val session: Session<HttpClient>) : W3CSession<Http
             WebElement(
                 session.post<Locator, WebElementObject>("/element", locator).elementId,
                 session
-            )
+            ) { elementId = session.post<Locator, WebElementObject>("/element", locator).elementId }
         )
 
     override suspend fun findElements(locator: Locator): List<W3CElement<HttpClient>> =
@@ -88,7 +89,7 @@ class KtorW3CSession(private val session: Session<HttpClient>) : W3CSession<Http
                 WebElement(
                     it.elementId,
                     session
-                )
+                ) { TODO("Implement re search elementId for collections") }
             )
         }
 
@@ -128,23 +129,26 @@ class KtorW3CSession(private val session: Session<HttpClient>) : W3CSession<Http
 }
 
 class KtorW3CWebElement(private val element: WebElement<HttpClient>) : W3CElement<HttpClient> {
-    override val elementId: String = element.elementId
+    override val elementId: String
+        get() = element.elementId
 
     override suspend fun findElement(locator: Locator): W3CElement<HttpClient> =
         KtorW3CWebElement(
             WebElement(
                 element.post<Locator, WebElementObject>("/element", locator).elementId,
                 element.session
-            )
+            ) {
+                elementId = element.post<Locator, WebElementObject>("/element", locator).elementId
+            }
         )
 
     override suspend fun findElements(locator: Locator): List<W3CElement<HttpClient>> =
-        element.post<Locator, List<WebElementObject>>("/element", locator).map {
+        element.post<Locator, List<WebElementObject>>("/elements", locator).map {
             KtorW3CWebElement(
                 WebElement(
                     it.elementId,
                     element.session
-                )
+                ) { TODO("Implement re search elementId for collections") }
             )
         }
 

@@ -54,8 +54,9 @@ class Session<T>(
 )
 
 class WebElement<T>(
-    val elementId: String,
-    val session: Session<T>
+    var elementId: String,
+    val session: Session<T>,
+    val refreshFn: suspend WebElement<T>.() -> Unit
 )
 
 interface SuspendableClosable {
