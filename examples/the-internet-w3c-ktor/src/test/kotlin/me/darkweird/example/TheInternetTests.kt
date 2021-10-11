@@ -54,13 +54,14 @@ class TheInternetTests : FunSpec() {
 
                 val addButton = findElement(tagName("button"))
                 addButton.click()
-                findElements(xpath("//button[@class='added-manually']")).size shouldBe 1
+                val locator = xpath("//button[@class='added-manually']")
+                findElements(locator).size shouldBe 1
 
                 addButton.click()
-                findElements(xpath("//button[@class='added-manually']")).size shouldBe 2
+                findElements(locator).size shouldBe 2
 
-                findElements(xpath("//button[@class='added-manually']"))[0].click()
-                findElements(xpath("//button[@class='added-manually']")).size shouldBe 1
+                findElements(locator)[0].click()
+                findElements(locator).size shouldBe 1
             }
         }
 
