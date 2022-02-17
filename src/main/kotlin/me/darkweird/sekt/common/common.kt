@@ -1,5 +1,6 @@
 package me.darkweird.sekt
 
+import io.ktor.client.*
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.mapSerialDescriptor
@@ -10,6 +11,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
+import me.darkweird.sekt.w3c.DefaultSessionCreator
 import kotlin.reflect.KProperty
 
 
@@ -32,46 +34,55 @@ data class CreateSessionResponse(
     val capabilities: Capabilities
 )
 
-interface SessionFactory<T, R> {
-    suspend fun create(driver: T, capabilities: WebDriverNewSessionParameters): R
+interface SessionFactory<R> {
+    suspend fun create(driver: WebDriver, capabilities: WebDriverNewSessionParameters): R
 }
 
-class WebDriverConfig<T>(
-    val executorFactory: () -> T
+class WebDriverConfig(
+    val executorFactory: () -> HttpClient
 )
 
-class WebDriver<T>(
+class WebDriver(
     val baseUrl: String,
-    configFactory: () -> WebDriverConfig<T>
+    configFactory: () -> WebDriverConfig
 ) {
-    private val config: WebDriverConfig<T> = configFactory()
-    val executor: T = this.config.executorFactory()
+    private val config: WebDriverConfig = configFactory()
+    val executor: HttpClient = this.config.executorFactory()
 }
 
-class Session<T>(
+class Session(
     val sessionId: String,
-    val webDriver: WebDriver<T>
-)
+    val webDriver: WebDriver
+) : SuspendableClosable {
+    override suspend fun close() {
+        webDriver.delete<Empty?>("/session/$sessionId")
+    }
+}
 
-class WebElement<T>(
+class WebElement(
     var elementId: String,
-    val session: Session<T>,
-    val refreshFn: suspend WebElement<T>.() -> Unit
+    val session: Session,
+    val refreshFn: suspend WebElement.() -> Unit
 )
 
 interface SuspendableClosable {
     suspend fun close()
 }
 
-suspend fun <T, R> WebDriver<T>.session(
-    factory: SessionFactory<WebDriver<T>, R>,
+suspend fun <R> WebDriver.session(
+    factory: SessionFactory<R>,
     caps: WebDriverNewSessionParameters
 ): R =
     factory.create(this, caps)
 
+suspend fun WebDriver.session(
+    caps: WebDriverNewSessionParameters
+): Session =
+    DefaultSessionCreator.create(this, caps)
 
-suspend fun <T, R : SuspendableClosable> WebDriver<T>.session(
-    factory: SessionFactory<WebDriver<T>, R>,
+
+suspend fun <R : SuspendableClosable> WebDriver.session(
+    factory: SessionFactory<R>,
     caps: WebDriverNewSessionParameters,
     block: suspend R.() -> Unit
 ) {
@@ -84,8 +95,21 @@ suspend fun <T, R : SuspendableClosable> WebDriver<T>.session(
 }
 
 
+suspend fun WebDriver.session(
+    caps: WebDriverNewSessionParameters,
+    block: suspend Session.() -> Unit
+) {
+    val session = session(DefaultSessionCreator, caps)
+    try {
+        block(session)
+    } finally {
+        session.close()
+    }
+}
+
+
 @OptIn(InternalSerializationApi::class)
-public inline fun <reified T : Any> capability(): Caps.Capability<T> {
+inline fun <reified T : Any> capability(): Caps.Capability<T> {
     return Caps.Capability(T::class.serializer())
 }
 

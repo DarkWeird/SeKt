@@ -11,20 +11,20 @@ import me.darkweird.sekt.common.ErrorConverter
 import me.darkweird.sekt.common.defaultConverter
 
 
-public fun <T : HttpClientEngineConfig> webdriver(
+fun <T : HttpClientEngineConfig> webdriver(
     baseUrl: String,
     ktorEngine: HttpClientEngineFactory<T>,
     httpConfig: HttpClientConfig<T>.() -> Unit = {},
     jsonConfig: JsonFeature.Config.() -> Unit = {}
-): WebDriver<HttpClient> = webdriver(baseUrl, listOf(), ktorEngine, httpConfig, jsonConfig)
+): WebDriver = webdriver(baseUrl, listOf(), ktorEngine, httpConfig, jsonConfig)
 
-public fun <T : HttpClientEngineConfig> webdriver(
+fun <T : HttpClientEngineConfig> webdriver(
     baseUrl: String,
     errorConverters: List<ErrorConverter>,
     ktorEngine: HttpClientEngineFactory<T>,
     httpConfig: HttpClientConfig<T>.() -> Unit = {},
     jsonConfig: JsonFeature.Config.() -> Unit = {}
-): WebDriver<HttpClient> =
+): WebDriver =
     WebDriver(baseUrl) {
         WebDriverConfig {
             HttpClient(
@@ -38,12 +38,12 @@ public fun <T : HttpClientEngineConfig> webdriver(
         }
     }
 
-public fun webdriver(
+fun webdriver(
     baseUrl: String,
     errorConverters: List<ErrorConverter> = listOf(),
     httpConfig: HttpClientConfig<HttpClientEngineConfig>.() -> Unit = {},
     jsonConfig: JsonFeature.Config.() -> Unit = {},
-): WebDriver<HttpClient> =
+): WebDriver =
     WebDriver(baseUrl) {
         WebDriverConfig {
             HttpClient {

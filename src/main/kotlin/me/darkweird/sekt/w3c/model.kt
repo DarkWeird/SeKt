@@ -1,5 +1,6 @@
 package me.darkweird.sekt.w3c
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -75,12 +76,13 @@ sealed class SwitchToFrame {
             this.id = id
         }
 
-        constructor(element: W3CElement<*>) {
+        constructor(element: me.darkweird.sekt.WebElement) {
             this.id = WebElementObject(element.elementId)
         }
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 object NullIdSerializer : KSerializer<SwitchToFrame.Null> {
     override val descriptor: SerialDescriptor = mapSerialDescriptor<String, Empty?>()
     override fun deserialize(decoder: Decoder): SwitchToFrame.Null {

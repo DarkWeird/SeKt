@@ -1,179 +1,165 @@
 package me.darkweird.sekt.w3c
 
-import io.ktor.client.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import me.darkweird.sekt.*
 
-object W3CKtor : SessionFactory<WebDriver<HttpClient>, KtorW3CSession> {
-    override suspend fun create(
-        driver: WebDriver<HttpClient>,
-        capabilities: WebDriverNewSessionParameters
-    ): KtorW3CSession {
+object DefaultSessionCreator : SessionFactory<Session> {
+    override suspend fun create(driver: WebDriver, capabilities: WebDriverNewSessionParameters): Session {
         val params = driver.post<WebDriverNewSessionParameters, CreateSessionResponse>("/session", capabilities)
-        return KtorW3CSession(Session(params.sessionId, driver))
+        return Session(params.sessionId, driver)
     }
 }
 
-suspend fun WebDriver<HttpClient>.status(): Status = get("/status")
+suspend fun WebDriver.status(): Status = get("/status")
 
-class KtorW3CSession(private val session: Session<HttpClient>) : W3CSession<HttpClient> {
+suspend fun Session.getTimeouts(): Timeouts = get("/timeouts")
 
-    override val sessionId: String = session.sessionId
+suspend fun Session.setTimeouts(value: Timeouts) =
+    post<Timeouts, Unit>("/timeouts", value)
 
-    override suspend fun getTimeouts(): Timeouts = session.get("/timeouts")
+suspend fun Session.getUrl(): String =
+    get("/url")
 
-    override suspend fun setTimeouts(value: Timeouts) =
-        session.post<Timeouts, Unit>("/timeouts", value)
+suspend fun Session.setUrl(url: PageUrl) =
+    post<PageUrl, Unit>("/url", url)
 
-    override suspend fun getUrl(): String =
-        session.get("/url")
+suspend fun Session.back() =
+    post<Empty, Unit>("/back", Empty)
 
-    override suspend fun setUrl(url: PageUrl) =
-        session.post<PageUrl, Unit>("/url", url)
+suspend fun Session.forward() = post<Empty, Unit>("/forward", Empty)
 
-    override suspend fun back() =
-        session.post<Empty, Unit>("/back", Empty)
+suspend fun Session.refresh() = post<Empty, Unit>("/refresh", Empty)
 
-    override suspend fun forward() = session.post<Empty, Unit>("/forward", Empty)
+suspend fun Session.getTitle(): String = get("/title")
 
-    override suspend fun refresh() = session.post<Empty, Unit>("/refresh", Empty)
-
-    override suspend fun getTitle(): String = session.get("/title")
-
-    override suspend fun getWindowHandle(): String = session.get("/window")
+suspend fun Session.getWindowHandle(): String = get("/window")
 
 
-    override suspend fun switchToWindow(window: WindowHandle) = session.post<WindowHandle, Unit>("/window", window)
+suspend fun Session.switchToWindow(window: WindowHandle) = post<WindowHandle, Unit>("/window", window)
 
-    override suspend fun closeWindow(): List<String> = session.delete("/window")
+suspend fun Session.closeWindow(): List<String> = delete("/window")
 
-    override suspend fun getWindowHandles(): List<String> = session.get("/window/handles")
+suspend fun Session.getWindowHandles(): List<String> = get("/window/handles")
 
-    override suspend fun switchToFrame(frame: SwitchToFrame) = session.post<SwitchToFrame, Unit>("/frame", frame)
+suspend fun Session.switchToFrame(frame: SwitchToFrame) = post<SwitchToFrame, Unit>("/frame", frame)
 
-    override suspend fun switchToParentFrame() = session.post<Empty, Unit>("/frame/parent", Empty)
+suspend fun Session.switchToParentFrame() = post<Empty, Unit>("/frame/parent", Empty)
 
-    override suspend fun getWindowRect(): Rect<Int> = session.get("/window/rect")
+suspend fun Session.getWindowRect(): Rect<Int> = get("/window/rect")
 
-    override suspend fun setWindowRect(rect: Rect<Int>): Rect<Int> =
-        session.post("/window/rect", Json.encodeToJsonElement(rect))
+suspend fun Session.setWindowRect(rect: Rect<Int>): Rect<Int> =
+    post("/window/rect", Json.encodeToJsonElement(rect))
 
-    override suspend fun windowMaximize(): Rect<Int> = session.post("/window/maximize", Empty)
+suspend fun Session.windowMaximize(): Rect<Int> = post("/window/maximize", Empty)
 
-    override suspend fun windowMinimize(): Rect<Int> = session.post("/window/minimize", Empty)
+suspend fun Session.windowMinimize(): Rect<Int> = post("/window/minimize", Empty)
 
-    override suspend fun windowFullscreen(): Rect<Int> = session.post("/window/fullscreen", Empty)
+suspend fun Session.windowFullscreen(): Rect<Int> = post("/window/fullscreen", Empty)
 
-    override suspend fun getActiveElement(): W3CElement<HttpClient> =
-        KtorW3CWebElement(
-            WebElement(
-                session.get<WebElementObject>("/element/active").elementId,
-                session
-            )
-            { elementId = session.get<WebElementObject>("/element/active").elementId }
-        )
-
-    override suspend fun findElement(locator: Locator): W3CElement<HttpClient> =
-        KtorW3CWebElement(
-            WebElement(
-                session.post<Locator, WebElementObject>("/element", locator).elementId,
-                session
-            ) { elementId = session.post<Locator, WebElementObject>("/element", locator).elementId }
-        )
-
-    override suspend fun findElements(locator: Locator): List<W3CElement<HttpClient>> =
-        session.post<Locator, List<WebElementObject>>("/elements", locator).map {
-            KtorW3CWebElement(
-                WebElement(
-                    it.elementId,
-                    session
-                ) { TODO("Implement re search elementId for collections") }
-            )
-        }
+suspend fun Session.getActiveElement(): WebElement =
+    WebElement(
+        get<WebElementObject>("/element/active").elementId,
+        this
+    )
+    { elementId = session.get<WebElementObject>("/element/active").elementId }
 
 
-    override suspend fun getPageSource(): String = session.get("/source")
-
-    override suspend fun execute(data: ScriptData): JsonElement = session.post("/execute/sync", data)
-
-    override suspend fun executeAsync(data: ScriptData): JsonElement = session.post("/execute/async", data)
-
-    override suspend fun cookies(): List<Cookie> = session.get("/cookie")
-
-    override suspend fun getCookie(name: String): Cookie = session.get("/cookie/$name")
-
-    override suspend fun setCookie(cookieData: CookieData) = session.post<CookieData, Unit>("/cookie", cookieData)
-
-    override suspend fun deleteAllCookie() = session.delete<Unit>("/cookie")
-
-    override suspend fun deleteCookie(name: String) = session.delete<Unit>("/cookie/$name")
-
-    override suspend fun performActions(actions: Actions) = session.post<Actions, Unit>("/actions", actions)
-
-    override suspend fun releaseActions() = session.delete<Unit>("/actions")
-
-    override suspend fun dismissAlert() = session.post<Empty, Unit>("/alert/dismiss", Empty)
-
-    override suspend fun acceptAlert() = session.post<Empty, Unit>("/alert/accept", Empty)
-
-    override suspend fun getAlertText(): String = session.get("/alert/text")
-
-    override suspend fun sendAlertText(text: Text) = session.post<Text, Unit>("/alert/text", text)
-
-    override suspend fun takeScreenshot(): String = session.get("/screenshot")
-
-    override suspend fun close() = session.delete<Unit>("")
-
-}
-
-class KtorW3CWebElement(private val element: WebElement<HttpClient>) : W3CElement<HttpClient> {
-    override val elementId: String
-        get() = element.elementId
-
-    override suspend fun findElement(locator: Locator): W3CElement<HttpClient> =
-        KtorW3CWebElement(
-            WebElement(
-                element.post<Locator, WebElementObject>("/element", locator).elementId,
-                element.session
-            ) {
-                elementId = element.post<Locator, WebElementObject>("/element", locator).elementId
-            }
-        )
-
-    override suspend fun findElements(locator: Locator): List<W3CElement<HttpClient>> =
-        element.post<Locator, List<WebElementObject>>("/elements", locator).map {
-            KtorW3CWebElement(
-                WebElement(
-                    it.elementId,
-                    element.session
-                ) { TODO("Implement re search elementId for collections") }
-            )
-        }
+suspend fun Session.findElement(locator: Locator): WebElement =
+    WebElement(
+        post<Locator, WebElementObject>("/element", locator).elementId,
+        this
+    ) { elementId = post<Locator, WebElementObject>("/element", locator).elementId }
 
 
-    override suspend fun isSelected(): Boolean = element.get("/selected")
+suspend fun Session.findElements(locator: Locator): List<WebElement> =
+    post<Locator, List<WebElementObject>>("/elements", locator).map {
+        WebElement(
+            it.elementId,
+            this
+        ) { TODO("Implement re search elementId for collections") }
+    }
 
-    override suspend fun getAttribute(name: String): String? = element.get("/attribute/$name")
 
-    override suspend fun getProperty(name: String): String? = element.get("/property/$name")
+suspend fun Session.getPageSource(): String = get("/source")
 
-    override suspend fun getCssValue(name: String): String = element.get("/css/$name")
+@JvmName("execute")
+suspend inline fun <reified R> Session.execute(data: ScriptData): R = post("/execute/sync", data)
 
-    override suspend fun getText(): String = element.get("/text")
+@JvmName("executeVoid")
+suspend fun Session.execute(data: ScriptData) = post<ScriptData, Empty>("/execute/sync", data)
 
-    override suspend fun getTagName(): String = element.get("/name")
+@JvmName("executeAsync")
+suspend inline fun <reified R> Session.executeAsync(data: ScriptData): R = post("/execute/async", data)
 
-    override suspend fun getRect(): Rect<Float> = element.get("/rect")
+@JvmName("executeAsyncVoid")
+suspend fun Session.executeAsync(data: ScriptData): Empty = post("/execute/async", data)
 
-    override suspend fun isEnabled(): Boolean = element.get("/enabled")
+suspend fun Session.cookies(): List<Cookie> = get("/cookie")
 
-    override suspend fun click() = element.post<Empty, Unit>("/click", Empty)
+suspend fun Session.getCookie(name: String): Cookie = get("/cookie/$name")
 
-    override suspend fun clear() = element.post<Empty, Unit>("/clear", Empty)
+suspend fun Session.setCookie(cookieData: CookieData) = post<CookieData, Unit>("/cookie", cookieData)
 
-    override suspend fun sendKeys(text: Text) = element.post<Text, Unit>("/value", text)
+suspend fun Session.deleteAllCookie() = delete<Unit>("/cookie")
 
-    override suspend fun takeScreenshot(): String = element.get("/screenshot")
-}
+suspend fun Session.deleteCookie(name: String) = delete<Unit>("/cookie/$name")
+
+suspend fun Session.performActions(actions: Actions) = post<Actions, Unit>("/actions", actions)
+
+suspend fun Session.releaseActions() = delete<Unit>("/actions")
+
+suspend fun Session.dismissAlert() = post<Empty, Unit>("/alert/dismiss", Empty)
+
+suspend fun Session.acceptAlert() = post<Empty, Unit>("/alert/accept", Empty)
+
+suspend fun Session.getAlertText(): String = get("/alert/text")
+
+suspend fun Session.sendAlertText(text: Text) = post<Text, Unit>("/alert/text", text)
+
+suspend fun Session.takeScreenshot(): String = get("/screenshot")
+
+suspend fun Session.close() = delete<Unit>("")
+
+suspend fun WebElement.findElement(locator: Locator): WebElement =
+    WebElement(
+        post<Locator, WebElementObject>("/element", locator).elementId,
+        session
+    ) {
+        elementId = post<Locator, WebElementObject>("/element", locator).elementId
+    }
+
+
+suspend inline fun WebElement.findElements(locator: Locator): List<WebElement> =
+    post<Locator, List<WebElementObject>>("/elements", locator).map {
+        WebElement(
+            it.elementId,
+            session
+        ) { TODO("Implement re search elementId for collections") }
+
+    }
+
+
+suspend fun WebElement.isSelected(): Boolean = get("/selected")
+
+suspend fun WebElement.getAttribute(name: String): String? = get("/attribute/$name")
+
+suspend fun WebElement.getProperty(name: String): String? = get("/property/$name")
+
+suspend fun WebElement.getCssValue(name: String): String = get("/css/$name")
+
+suspend fun WebElement.getText(): String = get("/text")
+
+suspend fun WebElement.getTagName(): String = get("/name")
+
+suspend fun WebElement.getRect(): Rect<Float> = get("/rect")
+
+suspend fun WebElement.isEnabled(): Boolean = get("/enabled")
+
+suspend fun WebElement.click() = post<Empty, Unit>("/click", Empty)
+
+suspend fun WebElement.clear() = post<Empty, Unit>("/clear", Empty)
+
+suspend fun WebElement.sendKeys(text: Text) = post<Text, Unit>("/value", text)
+
+suspend fun WebElement.takeScreenshot(): String = get("/screenshot")

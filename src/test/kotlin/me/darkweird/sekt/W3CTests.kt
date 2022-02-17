@@ -35,7 +35,7 @@ class W3CTests : FunSpec({
     }
 
     test("session") {
-        val sessionId = UUID.randomUUID().toString();
+        val sessionId = UUID.randomUUID().toString()
         mockSession(sessionId).sessionId shouldBe sessionId
     }
 
@@ -273,7 +273,7 @@ class W3CTests : FunSpec({
                     JsonNull
                 },
             )
-            val activeElement = session.getActiveElement();
+            val activeElement = session.getActiveElement()
             session.switchToFrame(SwitchToFrame.WebElement(activeElement))
         }
     }
@@ -455,7 +455,7 @@ class W3CTests : FunSpec({
                 JsonPrimitive(value)
             },
         )
-        session.execute(ScriptData("return document.title", listOf())) shouldBe JsonPrimitive(value)
+        session.execute<String>(ScriptData("return document.title", listOf())) shouldBe value
     }
     test("executeAsync") {
         val value = "sometitle"
@@ -472,7 +472,7 @@ class W3CTests : FunSpec({
                 JsonPrimitive(value)
             },
         )
-        session.executeAsync(ScriptData("return document.title", listOf())) shouldBe JsonPrimitive(value)
+        session.executeAsync<String>(ScriptData("return document.title", listOf())) shouldBe value
     }
 
     test("cookies") {
@@ -789,17 +789,14 @@ class W3CErrors : FunSpec({
 })
 
 
-private fun elementurl(sessionId: String, elementId: String, path: String) =
-    "/session/$sessionId/element/$elementId/$path"
-
 private fun sessionurl(sessionId: String, path: String) = "/session/$sessionId/$path"
 
-private suspend fun mockSession(sessionId: String, vararg handlers: MockRequestHandler): KtorW3CSession {
+private suspend fun mockSession(sessionId: String, vararg handlers: MockRequestHandler): Session {
     val caps = capabilities {
         browserName = "firefox"
     }
     val driver = webDriver(sessionHandler(sessionId), *handlers)
-    return driver.session(W3CKtor, caps)
+    return driver.session(caps)
 }
 
 private fun sessionHandler(sessionId: String): MockRequestHandler {

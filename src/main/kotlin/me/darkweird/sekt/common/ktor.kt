@@ -1,6 +1,5 @@
 package me.darkweird.sekt
 
-import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
@@ -14,11 +13,11 @@ data class WebDriverResponse<T>(val value: T)
 @Serializable
 object Empty
 
-suspend inline fun <reified R> WebDriver<HttpClient>.get(path: String): R {
+suspend inline fun <reified R> WebDriver.get(path: String): R {
     return executor.get<WebDriverResponse<R>>(baseUrl + path).value
 }
 
-suspend inline fun <T : Any, reified R> WebDriver<HttpClient>.post(path: String, body: T): R =
+suspend inline fun <T : Any, reified R> WebDriver.post(path: String, body: T): R =
     if (R::class == Unit::class) {
         executor.post<WebDriverResponse<Empty?>>(baseUrl + path) {
             this.body = body
@@ -33,7 +32,7 @@ suspend inline fun <T : Any, reified R> WebDriver<HttpClient>.post(path: String,
     }
 
 
-suspend inline fun <reified R> WebDriver<HttpClient>.delete(path: String): R =
+suspend inline fun <reified R> WebDriver.delete(path: String): R =
     if (R::class == Unit::class) {
         executor.delete<WebDriverResponse<Empty?>>(baseUrl + path).value
         Unit as R
@@ -41,16 +40,16 @@ suspend inline fun <reified R> WebDriver<HttpClient>.delete(path: String): R =
         executor.delete<WebDriverResponse<R>>(baseUrl + path).value
     }
 
-suspend inline fun <reified R> Session<HttpClient>.get(path: String): R =
+suspend inline fun <reified R> Session.get(path: String): R =
     webDriver.get("/session/$sessionId$path")
 
-suspend inline fun <reified R> Session<HttpClient>.delete(path: String): R =
+suspend inline fun <reified R> Session.delete(path: String): R =
     webDriver.delete("/session/$sessionId$path")
 
-suspend inline fun <T : Any, reified R> Session<HttpClient>.post(path: String, body: T): R =
+suspend inline fun <T : Any, reified R> Session.post(path: String, body: T): R =
     webDriver.post("/session/$sessionId$path", body)
 
-suspend inline fun <reified R> WebElement<HttpClient>.get(path: String): R =
+suspend inline fun <reified R> WebElement.get(path: String): R =
     try {
         session.get("/element/$elementId$path")
     } catch (e: WebDriverException) {
@@ -63,7 +62,7 @@ suspend inline fun <reified R> WebElement<HttpClient>.get(path: String): R =
     }
 
 
-suspend inline fun <reified R> WebElement<HttpClient>.delete(path: String): R =
+suspend inline fun <reified R> WebElement.delete(path: String): R =
     try {
         session.delete("/element/$elementId$path")
     } catch (e: WebDriverException) {
@@ -76,7 +75,7 @@ suspend inline fun <reified R> WebElement<HttpClient>.delete(path: String): R =
     }
 
 
-suspend inline fun <T : Any, reified R> WebElement<HttpClient>.post(path: String, body: T): R =
+suspend inline fun <T : Any, reified R> WebElement.post(path: String, body: T): R =
     try {
         session.post("/element/$elementId$path", body)
     } catch (e: WebDriverException) {
