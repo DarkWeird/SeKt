@@ -1,4 +1,4 @@
-package me.darkweird.sekt
+package me.darkweird.sekt.core
 
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -7,8 +7,6 @@ import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
-import me.darkweird.sekt.common.ErrorConverter
-import me.darkweird.sekt.common.defaultConverter
 
 
 fun <T : HttpClientEngineConfig> webdriver(

@@ -1,4 +1,4 @@
-package me.darkweird.sekt
+package me.darkweird.sekt.w3c
 
 import io.kotest.assertions.asClue
 import io.kotest.assertions.throwables.shouldThrow
@@ -10,9 +10,10 @@ import io.ktor.client.request.*
 import io.ktor.content.*
 import io.ktor.http.*
 import kotlinx.serialization.json.*
-import me.darkweird.sekt.common.WebDriverException
-import me.darkweird.sekt.w3c.*
-import me.darkweird.sekt.w3c.Cookie
+import me.darkweird.sekt.core.Session
+import me.darkweird.sekt.core.WebDriverException
+import me.darkweird.sekt.core.capabilities
+import me.darkweird.sekt.core.webdriver
 import me.darkweird.sekt.w3c.W3CCapabilities.browserName
 import java.util.*
 

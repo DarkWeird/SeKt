@@ -1,4 +1,4 @@
-package me.darkweird.sekt
+package me.darkweird.sekt.core
 
 import io.ktor.client.*
 import kotlinx.serialization.*
@@ -11,7 +11,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
-import me.darkweird.sekt.w3c.DefaultSessionCreator
 import kotlin.reflect.KProperty
 
 
@@ -75,12 +74,6 @@ suspend fun <R> WebDriver.session(
 ): R =
     factory.create(this, caps)
 
-suspend fun WebDriver.session(
-    caps: WebDriverNewSessionParameters
-): Session =
-    DefaultSessionCreator.create(this, caps)
-
-
 suspend fun <R : SuspendableClosable> WebDriver.session(
     factory: SessionFactory<R>,
     caps: WebDriverNewSessionParameters,
@@ -93,20 +86,6 @@ suspend fun <R : SuspendableClosable> WebDriver.session(
         session.close()
     }
 }
-
-
-suspend fun WebDriver.session(
-    caps: WebDriverNewSessionParameters,
-    block: suspend Session.() -> Unit
-) {
-    val session = session(DefaultSessionCreator, caps)
-    try {
-        block(session)
-    } finally {
-        session.close()
-    }
-}
-
 
 @OptIn(InternalSerializationApi::class)
 inline fun <reified T : Any> capability(): Caps.Capability<T> {
@@ -156,8 +135,14 @@ fun capabilities(
 ): WebDriverNewSessionParameters =
     WebDriverNewSessionParameters(
         WebDriverCapabilities(
-            Json.encodeToJsonElement(Caps().also(alwaysMatch)) as Capabilities,
-            firstMatch.map { Json.encodeToJsonElement(Caps().also(it)) as Capabilities }
+            Json.encodeToJsonElement(
+                Caps().also(alwaysMatch)
+            ) as Capabilities,
+            firstMatch.map {
+                Json.encodeToJsonElement(
+                    Caps().also(it)
+                ) as Capabilities
+            }
         )
     )
 

@@ -1,4 +1,4 @@
-package me.darkweird.sekt.w3c
+package me.darkweird.sekt.core
 
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeoutException

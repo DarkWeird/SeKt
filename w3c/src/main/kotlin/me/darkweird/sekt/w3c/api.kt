@@ -2,7 +2,7 @@ package me.darkweird.sekt.w3c
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import me.darkweird.sekt.*
+import me.darkweird.sekt.core.*
 
 object DefaultSessionCreator : SessionFactory<Session> {
     override suspend fun create(driver: WebDriver, capabilities: WebDriverNewSessionParameters): Session {

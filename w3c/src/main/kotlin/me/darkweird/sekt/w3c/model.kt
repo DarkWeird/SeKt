@@ -11,9 +11,9 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.encodeStructure
 import kotlinx.serialization.json.JsonElement
-import me.darkweird.sekt.Caps
-import me.darkweird.sekt.Empty
-import me.darkweird.sekt.capability
+import me.darkweird.sekt.core.Caps
+import me.darkweird.sekt.core.Empty
+import me.darkweird.sekt.core.capability
 
 const val FRAME_KEY = "frame-075b-4da1-b6ba-e579c2d3230a"
 const val WINDOW_KEY = "window-fcc6-11e5-b4f8-330a88ab9d7f"
@@ -76,7 +76,7 @@ sealed class SwitchToFrame {
             this.id = id
         }
 
-        constructor(element: me.darkweird.sekt.WebElement) {
+        constructor(element: me.darkweird.sekt.core.WebElement) {
             this.id = WebElementObject(element.elementId)
         }
     }

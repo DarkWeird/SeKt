@@ -1,6 +1,6 @@
 package me.darkweird.sekt.w3c
 
-import me.darkweird.sekt.common.*
+import me.darkweird.sekt.core.*
 
 enum class W3CError(val httpCode: Int, val error: String) : ErrorKind {
     ELEMENT_CLICK_INTERCEPTED(400, "element click intercepted"),

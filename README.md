@@ -1,9 +1,11 @@
 # SeKt
-Pure kotlin async selenium/webdriver client 
+
+Pure kotlin async selenium/webdriver client
 
 # Status
 
 Features:
+
 * [ ] Page object support
 * [x] Handling StaleReferenceException
 * [x] Strict models (kotlinx.serialization)
@@ -12,15 +14,18 @@ Features:
 * [ ] Docs
 
 Protocols:
+
 * [x] W3C
 * [ ] Appium
 * [ ] SauceLab
 * [ ] BrowserStack
 
 Http clients:
+
 * [x] Ktor
 
 Platforms (not multiplatform yet):
+
 * [x] Jvm
 * [ ] Js
 * [ ] Native
@@ -36,7 +41,7 @@ Platforms (not multiplatform yet):
         )
 
         val session = webdriver.session(
-            W3CKtor,
+            DefaultSessionCreator,
 
             capabilities
             {
@@ -48,10 +53,11 @@ Platforms (not multiplatform yet):
             setUrl(PageUrl("http://google.com"))
             findElement(xpath("//input[@name = 'q']")).sendKeys(Text("I want to found something"))
             findElement(xpath("//input[@name = 'btnK']")).click()
-                ...
+                //...
         }
 
 ```
+
 # Contributing
 
 1. Fork

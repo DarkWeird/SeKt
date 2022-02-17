@@ -1,10 +1,8 @@
-package me.darkweird.sekt
+package me.darkweird.sekt.core
 
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
-import me.darkweird.sekt.common.WebDriverException
-import me.darkweird.sekt.w3c.W3CError
 
 
 @Serializable
@@ -50,42 +48,15 @@ suspend inline fun <T : Any, reified R> Session.post(path: String, body: T): R =
     webDriver.post("/session/$sessionId$path", body)
 
 suspend inline fun <reified R> WebElement.get(path: String): R =
-    try {
-        session.get("/element/$elementId$path")
-    } catch (e: WebDriverException) {
-        if (e.kind == W3CError.STALE_ELEMENT_REFERENCE) {
-            refreshFn()
-            session.get("/element/$elementId$path")
-        } else {
-            throw e
-        }
-    }
-
+    session.get("/element/$elementId$path")
 
 suspend inline fun <reified R> WebElement.delete(path: String): R =
-    try {
-        session.delete("/element/$elementId$path")
-    } catch (e: WebDriverException) {
-        if (e.kind == W3CError.STALE_ELEMENT_REFERENCE) {
-            refreshFn()
-            session.delete("/element/$elementId$path")
-        } else {
-            throw e
-        }
-    }
+    session.delete("/element/$elementId$path")
 
 
 suspend inline fun <T : Any, reified R> WebElement.post(path: String, body: T): R =
-    try {
-        session.post("/element/$elementId$path", body)
-    } catch (e: WebDriverException) {
-        if (e.kind == W3CError.STALE_ELEMENT_REFERENCE) {
-            refreshFn()
-            session.post("/element/$elementId$path", body)
-        } else {
-            throw e
-        }
-    }
+    session.post("/element/$elementId$path", body)
+
 
 
 

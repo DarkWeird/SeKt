@@ -1,4 +1,4 @@
-package me.darkweird.sekt.common
+package me.darkweird.sekt.core
 
 import kotlinx.serialization.json.JsonElement
 

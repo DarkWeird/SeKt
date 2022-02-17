@@ -10,13 +10,11 @@ import io.kotest.matchers.string.shouldContain
 import io.ktor.client.engine.cio.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import me.darkweird.sekt.*
-import me.darkweird.sekt.common.WebDriverException
+import me.darkweird.sekt.core.*
 import me.darkweird.sekt.w3c.*
 import me.darkweird.sekt.w3c.W3CCapabilities.browserName
 import me.darkweird.sekt.w3c.W3CCapabilities.browserVersion
 import me.darkweird.sekt.w3c.W3CCapabilities.platformName
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
