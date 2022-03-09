@@ -16,35 +16,35 @@ suspend fun WebDriver.status(): Status = get("/status")
 suspend fun Session.getTimeouts(): Timeouts = get("/timeouts")
 
 suspend fun Session.setTimeouts(value: Timeouts) =
-    post<Timeouts, Unit>("/timeouts", value)
+    post<Timeouts, Empty?>("/timeouts", value)
 
 suspend fun Session.getUrl(): String =
     get("/url")
 
 suspend fun Session.setUrl(url: PageUrl) =
-    post<PageUrl, Unit>("/url", url)
+    post<PageUrl, Empty?>("/url", url)
 
 suspend fun Session.back() =
-    post<Empty, Unit>("/back", Empty)
+    post<Empty, Empty?>("/back", Empty)
 
-suspend fun Session.forward() = post<Empty, Unit>("/forward", Empty)
+suspend fun Session.forward() = post<Empty, Empty?>("/forward", Empty)
 
-suspend fun Session.refresh() = post<Empty, Unit>("/refresh", Empty)
+suspend fun Session.refresh() = post<Empty, Empty?>("/refresh", Empty)
 
 suspend fun Session.getTitle(): String = get("/title")
 
 suspend fun Session.getWindowHandle(): String = get("/window")
 
 
-suspend fun Session.switchToWindow(window: WindowHandle) = post<WindowHandle, Unit>("/window", window)
+suspend fun Session.switchToWindow(window: WindowHandle) = post<WindowHandle, Empty?>("/window", window)
 
 suspend fun Session.closeWindow(): List<String> = delete("/window")
 
 suspend fun Session.getWindowHandles(): List<String> = get("/window/handles")
 
-suspend fun Session.switchToFrame(frame: SwitchToFrame) = post<SwitchToFrame, Unit>("/frame", frame)
+suspend fun Session.switchToFrame(frame: SwitchToFrame) = post<SwitchToFrame, Empty?>("/frame", frame)
 
-suspend fun Session.switchToParentFrame() = post<Empty, Unit>("/frame/parent", Empty)
+suspend fun Session.switchToParentFrame() = post<Empty, Empty?>("/frame/parent", Empty)
 
 suspend fun Session.getWindowRect(): Rect<Int> = get("/window/rect")
 
@@ -99,27 +99,27 @@ suspend fun Session.cookies(): List<Cookie> = get("/cookie")
 
 suspend fun Session.getCookie(name: String): Cookie = get("/cookie/$name")
 
-suspend fun Session.setCookie(cookieData: CookieData) = post<CookieData, Unit>("/cookie", cookieData)
+suspend fun Session.setCookie(cookieData: CookieData) = post<CookieData, Empty?>("/cookie", cookieData)
 
-suspend fun Session.deleteAllCookie() = delete<Unit>("/cookie")
+suspend fun Session.deleteAllCookie() = delete<Empty?>("/cookie")
 
-suspend fun Session.deleteCookie(name: String) = delete<Unit>("/cookie/$name")
+suspend fun Session.deleteCookie(name: String) = delete<Empty?>("/cookie/$name")
 
-suspend fun Session.performActions(actions: Actions) = post<Actions, Unit>("/actions", actions)
+suspend fun Session.performActions(actions: Actions) = post<Actions, Empty?>("/actions", actions)
 
-suspend fun Session.releaseActions() = delete<Unit>("/actions")
+suspend fun Session.releaseActions() = delete<Empty?>("/actions")
 
-suspend fun Session.dismissAlert() = post<Empty, Unit>("/alert/dismiss", Empty)
+suspend fun Session.dismissAlert() = post<Empty, Empty?>("/alert/dismiss", Empty)
 
-suspend fun Session.acceptAlert() = post<Empty, Unit>("/alert/accept", Empty)
+suspend fun Session.acceptAlert() = post<Empty, Empty?>("/alert/accept", Empty)
 
 suspend fun Session.getAlertText(): String = get("/alert/text")
 
-suspend fun Session.sendAlertText(text: Text) = post<Text, Unit>("/alert/text", text)
+suspend fun Session.sendAlertText(text: Text) = post<Text, Empty?>("/alert/text", text)
 
 suspend fun Session.takeScreenshot(): String = get("/screenshot")
 
-suspend fun Session.close() = delete<Unit>("")
+suspend fun Session.close() = delete<Empty?>("")
 
 suspend fun WebElement.findElement(locator: Locator): WebElement =
     WebElement(
@@ -156,10 +156,10 @@ suspend fun WebElement.getRect(): Rect<Float> = get("/rect")
 
 suspend fun WebElement.isEnabled(): Boolean = get("/enabled")
 
-suspend fun WebElement.click() = post<Empty, Unit>("/click", Empty)
+suspend fun WebElement.click() = post<Empty, Empty?>("/click", Empty)
 
-suspend fun WebElement.clear() = post<Empty, Unit>("/clear", Empty)
+suspend fun WebElement.clear() = post<Empty, Empty?>("/clear", Empty)
 
-suspend fun WebElement.sendKeys(text: Text) = post<Text, Unit>("/value", text)
+suspend fun WebElement.sendKeys(text: Text) = post<Text, Empty?>("/value", text)
 
 suspend fun WebElement.takeScreenshot(): String = get("/screenshot")
