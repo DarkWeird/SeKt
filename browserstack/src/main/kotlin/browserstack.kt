@@ -16,7 +16,7 @@ object BrowserstackSessionCreator : SessionFactory<BSSession> {
 }
 
 class BSSession(sessionId: String, webDriver: WebDriver) : Session(sessionId, webDriver) {
-    val api : BrowserStackApi = BrowserStackApi.create(webDriver.executor)
+    val api: BrowserStackApi = BrowserStackApi.create(webDriver.executor)
 }
 
 fun browserstack(
@@ -39,7 +39,7 @@ fun browserstack(
                     sendWithoutRequest {
                         it.url.host.endsWith("browserstack.com")
                     }
-                    realm="/"
+                    realm = "/"
                 }
             }
             httpConfig()

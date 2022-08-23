@@ -42,8 +42,8 @@ private suspend fun withTestSession(
                 level = LogLevel.ALL
             }
         },
-        username = env("BS_USERNAME")?: throw IllegalArgumentException("env variable BS_USERNAME should be provided"),
-        password = env("BS_PASSWORD")?: throw IllegalArgumentException("env variable BS_PASSWORD should be provided")
+        username = env("BS_USERNAME") ?: throw IllegalArgumentException("env variable BS_USERNAME should be provided"),
+        password = env("BS_PASSWORD") ?: throw IllegalArgumentException("env variable BS_PASSWORD should be provided")
     )
     val choosedBrowser =
         browserstack

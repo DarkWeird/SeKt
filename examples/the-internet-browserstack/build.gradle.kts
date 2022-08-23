@@ -22,9 +22,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     testImplementation("io.kotest:kotest-runner-junit5:4.6.2")
-    testImplementation("io.ktor:ktor-client-cio:$ktor_version")
-    testImplementation("io.ktor:ktor-client-logging:$ktor_version")
     testImplementation("ch.qos.logback:logback-classic:1.2.10")
+    testImplementation("io.ktor:ktor-client-cio-jvm:$ktor_version")
+    testImplementation("io.ktor:ktor-client-logging-jvm:$ktor_version")
 }
 
 
