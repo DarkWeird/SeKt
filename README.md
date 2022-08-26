@@ -18,7 +18,7 @@ Protocols:
 * [x] W3C
 * [ ] Appium
 * [ ] SauceLab
-* [ ] BrowserStack
+* [x] BrowserStack
 
 Http clients:
 
