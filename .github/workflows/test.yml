@@ -6,6 +6,7 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,6 +21,9 @@ jobs:
         uses: gradle/gradle-build-action@v1.5.1
         with:
           arguments: test
+        env:
+          BS_USERNAME: ${{ secrets.BS_USERNAME }}
+          BS_PASSWORD: ${{ secrets.BS_SECRET }}
           
       
       
