@@ -1,9 +1,6 @@
 package me.darkweird.sekt.w3c
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.mapSerialDescriptor
 import kotlinx.serialization.descriptors.serialDescriptor
@@ -31,7 +28,6 @@ object W3CCapabilities {
     var Caps.timeouts: Timeouts by capability()
     var Caps.unhandledPromptBehavior: String by capability()
 }
-
 
 @Serializable
 sealed class Proxy(val proxyType: String) {
@@ -62,8 +58,7 @@ sealed class Proxy(val proxyType: String) {
 sealed class SwitchToFrame {
 
     @Serializable(NullIdSerializer::class)
-    class Null : SwitchToFrame() // should be class, not object, Serializable don't works otherwise
-
+    object Null : SwitchToFrame()
 
     @Serializable
     data class Number(val id: Int) : SwitchToFrame()

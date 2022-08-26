@@ -11,6 +11,15 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
+import kotlin.collections.List
+import kotlin.collections.MutableMap
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.forEach
+import kotlin.collections.listOf
+import kotlin.collections.map
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
 import kotlin.reflect.KProperty
 
 
@@ -41,20 +50,19 @@ class WebDriverConfig(
     val executorFactory: () -> HttpClient
 )
 
-class WebDriver(
+open class WebDriver(
     val baseUrl: String,
     configFactory: () -> WebDriverConfig
 ) {
-    private val config: WebDriverConfig = configFactory()
-    val executor: HttpClient = this.config.executorFactory()
+    val executor: HttpClient = configFactory().executorFactory()
 }
 
-class Session(
+open class Session(
     val sessionId: String,
     val webDriver: WebDriver
 ) : SuspendableClosable {
     override suspend fun close() {
-        webDriver.delete<Empty?>("/session/$sessionId")
+        webDriver.delete<String?>("/session/$sessionId") // TODO
     }
 }
 
@@ -88,22 +96,22 @@ suspend fun <R : SuspendableClosable> WebDriver.session(
 }
 
 @OptIn(InternalSerializationApi::class)
-inline fun <reified T : Any> capability(): Caps.Capability<T> {
-    return Caps.Capability(T::class.serializer())
+inline fun <reified T : Any> capability(name: String? = null): Caps.Capability<T> {
+    return Caps.Capability(T::class.serializer(), name)
 }
 
 @Serializable(Ser::class)
 class Caps {
     internal val mutableMap: MutableMap<String, Pair<KSerializer<*>, *>> = mutableMapOf()
 
-    class Capability<T : Any>(private val serializer: KSerializer<T>) {
+    class Capability<T : Any>(private val serializer: KSerializer<T>, private val name: String?) {
 
         operator fun getValue(thisRef: Caps, property: KProperty<*>): T {
-            return thisRef.mutableMap[property.name] as T
+            return thisRef.mutableMap[name ?: property.name] as T
         }
 
         operator fun setValue(thisRef: Caps, property: KProperty<*>, value: T) {
-            thisRef.mutableMap[property.name] = Pair(serializer, value)
+            thisRef.mutableMap[name ?: property.name] = Pair(serializer, value)
         }
     }
 

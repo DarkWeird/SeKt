@@ -28,7 +28,7 @@ suspend inline fun <reified R> WebElement.delete(path: String): R =
     }
 
 
-suspend inline fun <T : Any, reified R> WebElement.post(path: String, body: T): R =
+suspend inline fun <reified T : Any, reified R> WebElement.post(path: String, body: T): R =
     try {
         session.post("/element/$elementId$path", body)
     } catch (e: WebDriverException) {

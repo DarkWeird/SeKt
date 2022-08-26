@@ -232,13 +232,11 @@ class W3CTests : FunSpec({
             val session = mockSession(
                 sessionId,
                 response(HttpMethod.Post, sessionurl(sessionId, "frame")) { request ->
-                    request.asJson() shouldBe buildJsonObject {
-                        put("id", JsonNull)
-                    }
+                    request.asJson().jsonObject["id"] shouldBe JsonNull
                     JsonNull
                 },
             )
-            session.switchToFrame(SwitchToFrame.Null())
+            session.switchToFrame(SwitchToFrame.Null)
         }
 
         test("switchToFrame Number") {
@@ -247,9 +245,7 @@ class W3CTests : FunSpec({
             val session = mockSession(
                 sessionId,
                 response(HttpMethod.Post, sessionurl(sessionId, "frame")) { request ->
-                    request.asJson() shouldBe buildJsonObject {
-                        put("id", value)
-                    }
+                    request.asJson().jsonObject["id"]?.jsonPrimitive!!.int shouldBe value
                     JsonNull
                 },
             )
@@ -266,10 +262,8 @@ class W3CTests : FunSpec({
                     sessionurl(sessionId, "element/active"),
                     buildJsonObject { put(ELEMENT_KEY, elementId) }),
                 response(HttpMethod.Post, sessionurl(sessionId, "frame")) { request ->
-                    request.asJson() shouldBe buildJsonObject {
-                        put("id", buildJsonObject {
-                            put(ELEMENT_KEY, elementId)
-                        })
+                    request.asJson().jsonObject["id"] shouldBe buildJsonObject {
+                        put(ELEMENT_KEY, elementId)
                     }
                     JsonNull
                 },
