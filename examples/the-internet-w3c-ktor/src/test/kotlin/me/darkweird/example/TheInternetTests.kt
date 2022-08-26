@@ -10,7 +10,7 @@ import me.darkweird.sekt.w3c.W3CCapabilities.platformName
 import kotlin.time.ExperimentalTime
 
 
-const val wdUrl: String = "http://localhost:4444"
+const val wdUrl: String = "http://localhost:4444/wd/hub"
 
 private suspend fun withTestSession(block: suspend Session.() -> Unit) {
     webdriver(wdUrl, errorConverters = listOf(w3cConverter()), CIO, httpConfig = {
@@ -23,7 +23,6 @@ private suspend fun withTestSession(block: suspend Session.() -> Unit) {
             {
                 browserName = "firefox"
                 platformName = "linux"
-
             },
             block
         )
