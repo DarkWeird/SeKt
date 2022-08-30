@@ -3,7 +3,7 @@ package me.darkweird.sekt.core
 import kotlinx.serialization.json.JsonElement
 
 
-public class WebDriverException(
+class WebDriverException(
     message: String,
     val kind: ErrorKind,
     val stacktrace: String? = null,
@@ -27,7 +27,7 @@ fun defaultConverter(): ErrorConverter = { code, body ->
         )
     } else {
         WebDriverException(
-            "received json error without 'value' property",
+            "This response - non-W3C response, cannot deserialize as Success nor Error",
             UnknownErrorKind(code, "unknown"),
             stacktrace = ""
         )

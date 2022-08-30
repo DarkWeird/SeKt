@@ -1,14 +1,14 @@
 package me.darkweird.sekt.core
 
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonBuilder
-import kotlinx.serialization.json.JsonElement
 
 
 fun <T : HttpClientEngineConfig> webdriver(
@@ -26,13 +26,12 @@ fun <T : HttpClientEngineConfig> webdriver(
     jsonConfig: JsonBuilder.() -> Unit = {}
 ): WebDriver =
     WebDriver(baseUrl) {
-        WebDriverConfig {
+        WebDriverConfig(errorConverters,
+            Json { jsonConfig(this) }) {
             HttpClient(
                 ktorEngine,
                 config(
-                    jsonConfig,
-                    httpConfig,
-                    errorConverters
+                    httpConfig
                 )
             )
         }
@@ -45,41 +44,32 @@ fun webdriver(
     jsonConfig: JsonBuilder.() -> Unit = {},
 ): WebDriver =
     WebDriver(baseUrl) {
-        WebDriverConfig {
+        WebDriverConfig(errorConverters,
+            Json { jsonConfig(this) }) {
             HttpClient {
                 config(
-                    jsonConfig,
-                    httpConfig,
-                    errorConverters
+                    httpConfig
                 )(this as HttpClientConfig<HttpClientEngineConfig>)
             }
         }
     }
 
 private fun <T : HttpClientEngineConfig> config(
-    jsonConfig: JsonBuilder.() -> Unit,
     httpConfig: HttpClientConfig<T>.() -> Unit,
-    errorConverters: List<ErrorConverter> = listOf()
 ): HttpClientConfig<T>.() -> Unit = {
-    val converters = errorConverters.reversed() + defaultConverter()
 
     install(ContentNegotiation) {
-        json(kotlinx.serialization.json.Json {
-            ignoreUnknownKeys = true
-            jsonConfig(this)
-        })
+        json(Json)
     }
     expectSuccess = false
 
-    HttpResponseValidator {
-        this.validateResponse {
-            if (!it.status.isSuccess()) {
-                val body = it.body<JsonElement>()
-                val status = it.status.value
-                throw converters
-                    .firstNotNullOf { it(status, body) }
-            }
-        }
+    install(UserAgent) {
+        this.agent = "(Se)lenium(K)ol(t)in client"
+    }
+    install(DefaultRequest) {
+        header(HttpHeaders.Connection, "keep-alive")
+        header("Keep-Alive", "timeout=5, max=1000")
+
     }
     httpConfig()
 }
