@@ -31,16 +31,18 @@ private suspend fun withTestSession(
     block: suspend BSSession.() -> Unit
 ) {
     val browserstack = browserstack(
-        "https://hub-cloud.browserstack.com/wd/hub",
-        errorConverters = listOf(w3cConverter()),
-        httpConfig = {
+        env("BS_USERNAME") ?: throw IllegalArgumentException("env variable BS_USERNAME should be provided"),
+        env("BS_PASSWORD") ?: throw IllegalArgumentException("env variable BS_PASSWORD should be provided")
+    ) {
+        webdriver {
+            addErrorConverter(w3cConverter())
+        }
+        ktor {
             install(Logging) {
                 level = LogLevel.ALL
             }
-        },
-        username = env("BS_USERNAME") ?: throw IllegalArgumentException("env variable BS_USERNAME should be provided"),
-        password = env("BS_PASSWORD") ?: throw IllegalArgumentException("env variable BS_PASSWORD should be provided")
-    )
+        }
+    }
     browserstack.session(
         BrowserstackSessionCreator,
         capabilities
@@ -80,21 +82,18 @@ class RunAtAllBrowserTests : FunSpec() {
     init {
 
         val browserstack = browserstack(
-            "https://hub-cloud.browserstack.com/wd/hub",
-            errorConverters = listOf(w3cConverter()),
-            httpConfig = {
+            env("BS_USERNAME") ?: throw IllegalArgumentException("env variable BS_USERNAME should be provided"),
+            env("BS_PASSWORD") ?: throw IllegalArgumentException("env variable BS_PASSWORD should be provided")
+        ) {
+            webdriver {
+                addErrorConverter(w3cConverter())
+            }
+            ktor {
                 install(Logging) {
                     level = LogLevel.ALL
                 }
-                install(HttpTimeout) {
-                    requestTimeoutMillis = 60_000
-                }
-            },
-            username = env("BS_USERNAME")
-                ?: throw IllegalArgumentException("env variable BS_USERNAME should be provided"),
-            password = env("BS_PASSWORD")
-                ?: throw IllegalArgumentException("env variable BS_PASSWORD should be provided")
-        )
+            }
+        }
 
         val api = BrowserStackApi.create(browserstack.executor)
 

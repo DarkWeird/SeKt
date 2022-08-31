@@ -1,12 +1,11 @@
 package me.darkweird.sekt.browserstack
 
-import io.ktor.client.*
-import io.ktor.client.engine.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import me.darkweird.browserstack.BrowserStackApi
 import me.darkweird.sekt.core.*
 
+const val browserstackUrl = "https://hub-cloud.browserstack.com/wd/hub"
 
 object BrowserstackSessionCreator : SessionFactory<BSSession> {
     override suspend fun create(driver: WebDriver, capabilities: WebDriverNewSessionParameters): BSSession {
@@ -18,22 +17,19 @@ object BrowserstackSessionCreator : SessionFactory<BSSession> {
 class BSSession(sessionId: String, webDriver: WebDriver) : Session(sessionId, webDriver) {
     val api: BrowserStackApi by lazy { BrowserStackApi.create(webDriver.executor) }
     override suspend fun close() {
-        kotlin.runCatching {  super.close() } // simple ignore this!
+        kotlin.runCatching { super.close() } // simple ignore this!
     }
 }
 
 fun browserstack(
-    baseUrl: String,
-    errorConverters: List<ErrorConverter> = listOf(),
-    httpConfig: HttpClientConfig<HttpClientEngineConfig>.() -> Unit = {},
-    username: String, password: String
+    username: String, password: String,
+    webDriverBuilder: WebDriverBuilder.() -> Unit
 ): WebDriver =
-    webdriver(baseUrl,
-        errorConverters = errorConverters,
-        jsonConfig = {
+    WebDriver(browserstackUrl) {
+        json {
             ignoreUnknownKeys = true
-        },
-        httpConfig = {
+        }
+        ktor {
             install(Auth) {
                 basic {
                     credentials {
@@ -48,5 +44,6 @@ fun browserstack(
                     realm = "/"
                 }
             }
-            httpConfig()
-        })
+        }
+        webDriverBuilder()
+    }

@@ -10,10 +10,7 @@ import io.ktor.client.request.*
 import io.ktor.content.*
 import io.ktor.http.*
 import kotlinx.serialization.json.*
-import me.darkweird.sekt.core.Session
-import me.darkweird.sekt.core.WebDriverException
-import me.darkweird.sekt.core.capabilities
-import me.darkweird.sekt.core.webdriver
+import me.darkweird.sekt.core.*
 import me.darkweird.sekt.w3c.W3CCapabilities.browserName
 import java.util.*
 
@@ -815,16 +812,21 @@ private fun HttpRequestData.asJson() =
 
 
 private fun webDriver(vararg handlers: MockRequestHandler) =
-    webdriver("https://anyUrl",
-        listOf(
+    WebDriver("https://anyUrl") {
+        webdriver {
+            addErrorConverters(
+                listOf(
             w3cConverter()
-        ),
-        MockEngine,
-        {
+        )
+            )
+        }
+        json({})
+        ktor(MockEngine) {
             engine {
                 requestHandlers += handlers
             }
-        })
+        }
+    }
 
 private fun response(
     method: HttpMethod,

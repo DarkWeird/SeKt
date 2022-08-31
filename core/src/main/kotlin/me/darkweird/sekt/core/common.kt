@@ -38,25 +38,20 @@ interface SessionFactory<R> {
     suspend fun create(driver: WebDriver, capabilities: WebDriverNewSessionParameters): R
 }
 
-class WebDriverConfig(
-    val converters: List<ErrorConverter> = listOf(),
-    val json: Json? = null,
-    val executorFactory: () -> HttpClient
-)
-
 open class WebDriver(
     val baseUrl: String,
-    configFactory: () -> WebDriverConfig
+    configFactory: WebDriverBuilder.() -> Unit
 ) {
     val executor: HttpClient
     val errorConverters: List<ErrorConverter>
     val json: Json
+
     init {
-        configFactory().let {
-            executor = it.executorFactory()
-            errorConverters = it.converters.reversed() + defaultConverter()
-            json = it.json ?: Json
-        }
+        val builder = WebDriverBuilder()
+        configFactory(builder)
+        executor = builder.httpClientProvider()
+        errorConverters = builder.webDriverConfig.errorConverters
+        json = builder.jsonProvider()
     }
 
 }
