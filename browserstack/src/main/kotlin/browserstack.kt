@@ -16,7 +16,10 @@ object BrowserstackSessionCreator : SessionFactory<BSSession> {
 }
 
 class BSSession(sessionId: String, webDriver: WebDriver) : Session(sessionId, webDriver) {
-    val api: BrowserStackApi = BrowserStackApi.create(webDriver.executor)
+    val api: BrowserStackApi by lazy { BrowserStackApi.create(webDriver.executor) }
+    override suspend fun close() {
+        kotlin.runCatching {  super.close() } // simple ignore this!
+    }
 }
 
 fun browserstack(
@@ -27,6 +30,9 @@ fun browserstack(
 ): WebDriver =
     webdriver(baseUrl,
         errorConverters = errorConverters,
+        jsonConfig = {
+            ignoreUnknownKeys = true
+        },
         httpConfig = {
             install(Auth) {
                 basic {

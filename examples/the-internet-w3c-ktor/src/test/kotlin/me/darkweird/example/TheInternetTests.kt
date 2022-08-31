@@ -3,10 +3,13 @@ package me.darkweird.example
 import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.style.FunSpec
 import io.ktor.client.engine.cio.*
-import me.darkweird.sekt.core.*
-import me.darkweird.sekt.w3c.*
+import me.darkweird.sekt.core.Session
+import me.darkweird.sekt.core.capabilities
+import me.darkweird.sekt.core.webdriver
 import me.darkweird.sekt.w3c.W3CCapabilities.browserName
 import me.darkweird.sekt.w3c.W3CCapabilities.platformName
+import me.darkweird.sekt.w3c.session
+import me.darkweird.sekt.w3c.w3cConverter
 import kotlin.time.ExperimentalTime
 
 
@@ -32,7 +35,7 @@ private suspend fun withTestSession(block: suspend Session.() -> Unit) {
 @ExperimentalTime
 class TheInternetTests : FunSpec() {
     init {
-        concurrency = 1
+        concurrency = 5
         theInternetTests { _, s ->
             withTestSession(s)
         }

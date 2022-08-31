@@ -11,14 +11,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
-import kotlin.collections.List
-import kotlin.collections.MutableMap
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.forEach
-import kotlin.collections.listOf
-import kotlin.collections.map
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
 import kotlin.reflect.KProperty
 
@@ -47,6 +39,8 @@ interface SessionFactory<R> {
 }
 
 class WebDriverConfig(
+    val converters: List<ErrorConverter> = listOf(),
+    val json: Json? = null,
     val executorFactory: () -> HttpClient
 )
 
@@ -54,7 +48,17 @@ open class WebDriver(
     val baseUrl: String,
     configFactory: () -> WebDriverConfig
 ) {
-    val executor: HttpClient = configFactory().executorFactory()
+    val executor: HttpClient
+    val errorConverters: List<ErrorConverter>
+    val json: Json
+    init {
+        configFactory().let {
+            executor = it.executorFactory()
+            errorConverters = it.converters.reversed() + defaultConverter()
+            json = it.json ?: Json
+        }
+    }
+
 }
 
 open class Session(
