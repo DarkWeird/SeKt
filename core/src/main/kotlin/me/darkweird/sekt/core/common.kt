@@ -50,7 +50,7 @@ open class WebDriver(
         val builder = WebDriverBuilder()
         configFactory(builder)
         executor = builder.httpClientProvider()
-        errorConverters = builder.webDriverConfig.errorConverters
+        errorConverters = builder.webDriverConfig.errorConverters.reversed()
         json = builder.jsonProvider()
     }
 
