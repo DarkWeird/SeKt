@@ -18,10 +18,10 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(project(":core"))
     implementation(project(":w3c"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 
     testImplementation(project(":examples:common"))
-    testImplementation("io.kotest:kotest-runner-junit5:5.4.2")
+    testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
     testImplementation("io.ktor:ktor-client-cio-jvm:$ktor_version")
 }
 
