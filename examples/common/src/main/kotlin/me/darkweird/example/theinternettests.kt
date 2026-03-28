@@ -24,7 +24,7 @@ fun FunSpec.theInternetTests(
     withTestSession: suspend (name: String, block: suspend Session.() -> Unit) -> Unit
 ) {
     test("Add/remove elements") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/add_remove_elements/"))
 
             val addButton = findElement(tagName("button"))
@@ -41,25 +41,25 @@ fun FunSpec.theInternetTests(
     }
 
     xtest("Basic auth") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/basic_auth"))
         }
     }
 
     xtest("Broken images") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/broken_images"))
         }
     }
 
     xtest("Challenging DOM") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/challenging_dom"))
         }
     }
 
     test("Checkboxes") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/checkboxes"))
 
             val checkboxes = findElements(xpath("//form[@id='checkboxes']/input"))
@@ -73,7 +73,7 @@ fun FunSpec.theInternetTests(
     }
 
     test("Context Menu") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/context_menu"))
 
             val contextMenuTarget = findElement(css("#hot-spot"))
@@ -97,7 +97,7 @@ fun FunSpec.theInternetTests(
     }
 
     xtest("Digest Authentication") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/"))
 
         }
@@ -105,14 +105,14 @@ fun FunSpec.theInternetTests(
 
 
     xtest("Disappearing Elements") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/disappearing_elements"))
 
         }
     }
 
     test("Drag and Drop") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/drag_and_drop"))
 
             val (firstColumn, secondColumn) = findElement(css("#columns")).findElements(tagName("div"))
@@ -169,7 +169,7 @@ fun FunSpec.theInternetTests(
     }
 
     test("Dropdown List") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/dropdown"))
             val select = findElement(css("#dropdown"))
             select.getProperty("value") shouldBe ""
@@ -183,7 +183,7 @@ fun FunSpec.theInternetTests(
     }
 
     xtest("Dynamic Content") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/dynamic_content"))
 
         }
@@ -191,7 +191,7 @@ fun FunSpec.theInternetTests(
 
     // Fixme stuck at check box disappear
     xtest("Dynamic Controls") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/dynamic_controls"))
 
             // Checkbox check
@@ -218,7 +218,7 @@ fun FunSpec.theInternetTests(
     }
 
     test("Dynamic Loading/1") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/dynamic_loading"))
 
             findElement(linkText("Example 1: Element on page that is hidden")).click()
@@ -236,7 +236,7 @@ fun FunSpec.theInternetTests(
     }
 
     test("Dynamic Loading/2") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/dynamic_loading"))
 
             findElement(linkText("Example 1: Element on page that is hidden")).click()
@@ -256,42 +256,42 @@ fun FunSpec.theInternetTests(
     }
 
     xtest("Entry Ad") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/entry_ad"))
 
         }
     }
 
     xtest("Exit Intent") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/exit_intent"))
 
         }
     }
 
     xtest("File Download") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/download"))
 
         }
     }
 
     xtest("File Unload") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/upload"))
 
         }
     }
 
     xtest("Floating menu") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/floating_menu"))
 
         }
     }
 
     xtest("Forgot Password") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/forgot_password"))
 
 
@@ -299,7 +299,7 @@ fun FunSpec.theInternetTests(
     }
 
     test("Form Authentication/1") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/login"))
 
             findElement(css("#username")).sendKeys(Text("tomsmith"))
@@ -311,7 +311,7 @@ fun FunSpec.theInternetTests(
     }
 
     test("Form Authentication/2") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/login"))
 
             findElement(css("#login button")).click()
@@ -321,7 +321,7 @@ fun FunSpec.theInternetTests(
     }
 
     test("Form Authentication/3") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/login"))
 
             findElement(css("#username")).sendKeys(Text("tomsmith"))
@@ -332,7 +332,7 @@ fun FunSpec.theInternetTests(
     }
 
     test("Nested frames") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/nested_frames"))
 
             runCatching { findElement(css("frameset")) }.shouldBeSuccess()
@@ -365,7 +365,7 @@ fun FunSpec.theInternetTests(
     }
 
     test("iframes") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/iframe"))
 
             runCatching { findElement(css("#tinymce")) }.shouldBeFailure()
@@ -376,13 +376,13 @@ fun FunSpec.theInternetTests(
     }
 
     xtest("Geolocation") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/geolocation"))
         }
     }
 
     test("Horizontal Slider") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/horizontal_slider"))
             val slider = findElement(tagName("input"))
             val rangeValue = findElement(css("#range"))
@@ -414,7 +414,7 @@ fun FunSpec.theInternetTests(
     }
 
     test("Hovers") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/hovers"))
             val figures = findElements(css(".figure"))
             performActions(
@@ -437,7 +437,7 @@ fun FunSpec.theInternetTests(
     }
 
     xtest("Infinity Scroll") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/infinite_scroll"))
 
 
@@ -445,14 +445,14 @@ fun FunSpec.theInternetTests(
     }
 
     xtest("Inputs") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/inputs"))
 
         }
     }
 
     test("Windows") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/windows"))
             findElement(linkText("Click Here")).click()
             switchToWindow(WindowHandle((getWindowHandles() - getWindowHandle()).first()))
@@ -462,7 +462,7 @@ fun FunSpec.theInternetTests(
     }
 
     xtest("Notification Message") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/notification_message_rendered"))
 
 
@@ -470,7 +470,7 @@ fun FunSpec.theInternetTests(
     }
 
     xtest("Redirections") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/redirector"))
 
 
@@ -478,7 +478,7 @@ fun FunSpec.theInternetTests(
     }
 
     xtest("Secure File Download") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/download-secure"))
 
 
@@ -486,7 +486,7 @@ fun FunSpec.theInternetTests(
     }
 
     xtest("Shadow DOM") {
-        withTestSession(testCase.displayName) {
+        withTestSession(testCase.name.testName) {
             setUrl(PageUrl("$webUrl/shadow_dom"))
 
 
