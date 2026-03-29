@@ -1,8 +1,6 @@
-val ktor_version: String by project
-
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 group = "me.darkweird.sekt"
@@ -16,9 +14,9 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(project(":core"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+    implementation(libs.kotlinx.serialization.json)
 
-    api("io.github.darkweird:browserstack.kt:0.3.1")
-    implementation("io.ktor:ktor-client-auth-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-serialization-jvm:$ktor_version")
+    api(libs.browserstack.kt)
+    implementation(libs.ktor.client.auth)
+    implementation(libs.ktor.client.serialization)
 }

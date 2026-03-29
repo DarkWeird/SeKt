@@ -1,9 +1,6 @@
-val ktor_version: String by project
-val kotlin_version: String by project
-
 plugins {
-    kotlin("jvm") // version provides by root project
-    kotlin("plugin.serialization")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 group = "me.darkweird.sekt.examples"
@@ -18,11 +15,11 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(project(":core"))
     implementation(project(":w3c"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(project(":examples:common"))
-    testImplementation("io.kotest:kotest-runner-junit5:5.4.2")
-    testImplementation("io.ktor:ktor-client-cio-jvm:$ktor_version")
+    testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.ktor.client.cio)
 }
 
 

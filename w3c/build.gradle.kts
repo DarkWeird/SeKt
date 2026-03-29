@@ -1,9 +1,6 @@
-val ktor_version: String by project
-val kotlin_version: String by project
-
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 group = "me.darkweird"
@@ -17,15 +14,15 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(project(":core"))
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-    implementation("io.ktor:ktor-client-core-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-cio-jvm:$ktor_version")
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
 
-    testImplementation("io.kotest:kotest-runner-junit5:5.4.2")
-    testImplementation("io.ktor:ktor-client-mock-jvm:$ktor_version")
+    testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.ktor.client.mock)
 }
 
 tasks.test {
